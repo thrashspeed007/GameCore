@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "815001378203",
+    "project_id": "gamecore-c5717",
+    "storage_bucket": "gamecore-c5717.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:815001378203:android:ca98131c8ccc81ff94953e",
+        "android_client_info": {
+          "package_name": "com.thrashspeed.gamecore"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDSlUanj65dTHzD8YeCKv2wlkk-C5z8kCU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
