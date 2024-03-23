@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">GameCore</string>
+
+<!--    Bottom nav bar -->
+    <string name="bottonNavBar_explore">Explorar</string>
+    <string name="bottonNavBar_myGames">Mis Juegos</string>
+    <string name="bottonNavBar_social">Social</string>
+    <string name="bottonNavBar_profile">Perfil</string>
+
 </resources>

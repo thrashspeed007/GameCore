@@ -53,8 +53,10 @@ android {
 dependencies {
 
     implementation("androidx.core:core-ktx:1.12.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
-    implementation("androidx.activity:activity-compose:1.7.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
+    implementation ("androidx.compose.material:material-icons-extended:1.6.4")
+    implementation("androidx.activity:activity-compose:1.8.2")
+    implementation("androidx.navigation:navigation-compose:2.7.7")
     implementation(platform("androidx.compose:compose-bom:2023.08.00"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
@@ -67,6 +69,18 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+    // Retrofit
+    // https://square.github.io/retrofit/
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+
+    // Gson (Retrofit version)
+    // https://github.com/google/gson
+    implementation ("com.google.code.gson:gson:2.10.1")
+
+    // Glide
+    // https://github.com/bumptech/glide
+    implementation ("com.github.bumptech.glide:glide:4.16.0")
 
     // Firebase BoM
     implementation(platform("com.google.firebase:firebase-bom:32.7.4"))
