@@ -1,6 +1,14 @@
 <resources>
     <string name="app_name">GameCore</string>
 
+<!--    Auth Screen -->
+    <string name="languageBtnText">Español</string>
+    <string name="usernameInputPlaceholder">Usuario</string>
+    <string name="passwordInputPlaceholder">Contraseña</string>
+    <string name="logInBtnText">INICIAR SESIÓN</string>
+    <string name="signUpBtnText">REGISTRARSE</string>
+    <string name="googleLogInBtnText">CONTINUAR CON GOOGLE</string>
+
 <!--    Bottom nav bar -->
     <string name="bottonNavBar_explore">Explorar</string>
     <string name="bottonNavBar_myGames">Mis Juegos</string>
