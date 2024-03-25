@@ -12,7 +12,20 @@
           "package_name": "com.thrashspeed.gamecore"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "815001378203-vqcb34t0283o5ktsils8jbipganu71v5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.thrashspeed.gamecore",
+            "certificate_hash": "dd61b8027fa071acd66e3e6f59103e86942b233b"
+          }
+        },
+        {
+          "client_id": "815001378203-7usntee838fnpii5amki02gba8c7idk7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDSlUanj65dTHzD8YeCKv2wlkk-C5z8kCU"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "815001378203-7usntee838fnpii5amki02gba8c7idk7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
