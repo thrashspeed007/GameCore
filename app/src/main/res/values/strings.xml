@@ -4,8 +4,11 @@
 
 <!--    Auth Screen -->
     <string name="languageBtnText">Español</string>
+    <string name="emailInputPlaceholder">Correo electrónico</string>
     <string name="usernameInputPlaceholder">Usuario</string>
     <string name="passwordInputPlaceholder">Contraseña</string>
+    <string name="passwordConfirmationPlaceHolder">Confirmar contraseña</string>
+    <string name="fullnameInputPlaceholder">Nombre completo</string>
     <string name="logInBtnText">INICIAR SESIÓN</string>
     <string name="signUpBtnText">REGISTRARSE</string>
     <string name="googleLogInBtnText">CONTINUAR CON GOOGLE</string>
