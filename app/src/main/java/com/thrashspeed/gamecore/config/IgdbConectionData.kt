@@ -16,10 +16,5 @@ class IgdbConectionData {
          * Clave de la API de IGDB.
          */
         const val IGDB_CLIENT_ID = "c5xoqtr82o0tg5o1esm8xliuxbx5wi"
-
-        /**
-         * Token de acceso para las consultas de IGDB.
-         */
-        var igdb_access_token = "j72yqhcdwg096mewqsu30vmxxcenk6"
     }
 }
