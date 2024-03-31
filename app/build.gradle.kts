@@ -79,9 +79,9 @@ dependencies {
     // https://github.com/google/gson
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
 
-    // Glide
-    // https://github.com/bumptech/glide
-    implementation ("com.github.bumptech.glide:glide:4.16.0")
+    // Coil
+    // https://github.com/coil-kt/coil
+    implementation("io.coil-kt:coil-compose:2.6.0")
 
     // Firebase BoM
     implementation(platform("com.google.firebase:firebase-bom:32.7.4"))

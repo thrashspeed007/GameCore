@@ -46,3 +46,14 @@ data class Game(
     val videos: List<Int>,
     val websites: List<Int>
 )
+
+data class GameItem(
+    val id: Int,
+    val name: String,
+    val cover: GameCover
+)
+
+data class GameCover(
+    val id: Int,
+    val image_id: String
+)

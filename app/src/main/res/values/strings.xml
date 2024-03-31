@@ -13,6 +13,9 @@
     <string name="signUpBtnText">REGISTRARSE</string>
     <string name="googleLogInBtnText">CONTINUAR CON GOOGLE</string>
 
+<!--    Explore screen -->
+    <string name="explore_famousGames">Juegos populares</string>
+
 <!--    Bottom nav bar -->
     <string name="bottonNavBar_explore">Explorar</string>
     <string name="bottonNavBar_myGames">Mis Juegos</string>

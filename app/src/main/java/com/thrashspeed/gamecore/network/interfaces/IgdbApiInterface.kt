@@ -1,6 +1,7 @@
 package com.thrashspeed.gamecore.network.interfaces
 
 import com.thrashspeed.gamecore.data.model.Game
+import com.thrashspeed.gamecore.data.model.GameItem
 import okhttp3.RequestBody
 import retrofit2.Call
 import retrofit2.http.Body
@@ -18,5 +19,5 @@ interface IgdbApiInterface {
     @POST("games")
     fun getGames(
         @Body requestBody: RequestBody
-    ): Call<List<Game>>
+    ): Call<List<GameItem>>
 }
