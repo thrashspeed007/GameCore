@@ -14,6 +14,8 @@
     <string name="googleLogInBtnText">CONTINUAR CON GOOGLE</string>
 
 <!--    Explore screen -->
+    <string name="exploreTabs_games">VIDEOJUEGOS</string>
+    <string name="exploreTabs_platforms">PLATAFORMAS</string>
     <string name="explore_famousGames">Juegos populares</string>
 
 <!--    Bottom nav bar -->
