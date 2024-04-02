@@ -17,6 +17,8 @@
     <string name="exploreTabs_games">VIDEOJUEGOS</string>
     <string name="exploreTabs_platforms">PLATAFORMAS</string>
     <string name="explore_famousGames">Juegos populares</string>
+    <string name="explore_trendingGames">Juegos en tendencia</string>
+    <string name="explore_gamesCatalogue">Catálogo</string>
 
 <!--    Bottom nav bar -->
     <string name="bottonNavBar_explore">Explorar</string>
