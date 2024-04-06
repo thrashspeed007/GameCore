@@ -19,6 +19,9 @@
     <string name="explore_famousGames">Juegos populares</string>
     <string name="explore_trendingGames">Juegos en tendencia</string>
     <string name="explore_gamesCatalogue">Catálogo</string>
+    <string name="explore_sortBy">Ordenar por</string>
+    <string name="explore_sortByBestRated">Mejor valorados</string>
+    <string name="explore_sortByMostPlayed">Más jugados</string>
 
 <!--    Bottom nav bar -->
     <string name="bottonNavBar_explore">Explorar</string>

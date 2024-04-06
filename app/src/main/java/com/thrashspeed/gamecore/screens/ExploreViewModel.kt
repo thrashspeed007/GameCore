@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.thrashspeed.gamecore.data.access.GamesAccess
 import com.thrashspeed.gamecore.data.model.GameItem
+import com.thrashspeed.gamecore.utils.igdb.IgdbSortOptions
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
@@ -20,20 +21,20 @@ class ExploreViewModel : ViewModel() {
     private val gamesAccess = GamesAccess()
 
     // State to hold the list of popular games
-    private val _popularGames = MutableStateFlow<List<GameItem>>(emptyList())
+    private val _filteredGames = MutableStateFlow<List<GameItem>>(emptyList())
     private val _trendingGames = MutableStateFlow<List<GameItem>>(emptyList())
-    val popularGames = _popularGames
+    val filteredGames = _filteredGames
     val trendingGames = _trendingGames
 
     init {
-        fetchFamousGames()
+        fetchFilteredGames()
         fetchTrendingGames()
     }
 
-    private fun fetchFamousGames() {
+    private fun fetchFilteredGames() {
         viewModelScope.launch {
             gamesAccess.getFamousGames { games ->
-                _popularGames.value = games
+                _filteredGames.value = games
             }
         }
     }
@@ -42,6 +43,14 @@ class ExploreViewModel : ViewModel() {
         viewModelScope.launch {
             gamesAccess.getTrendingGames { games ->
                 _trendingGames.value = games
+            }
+        }
+    }
+
+    fun updateGamesInList(genres: List<Int>, sortOption: IgdbSortOptions) {
+        viewModelScope.launch {
+            gamesAccess.getFilteredGames(genres, sortOption) { games ->
+                _filteredGames.value = games
             }
         }
     }

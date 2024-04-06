@@ -3,6 +3,8 @@ package com.thrashspeed.gamecore.data.access
 import android.util.Log
 import com.thrashspeed.gamecore.data.model.GameItem
 import com.thrashspeed.gamecore.network.RetrofitService
+import com.thrashspeed.gamecore.utils.igdb.IgdbQuery
+import com.thrashspeed.gamecore.utils.igdb.IgdbSortOptions
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -21,6 +23,22 @@ class GamesAccess {
 
     private fun addWhereClauseToQuery(query: String, whereClause: String): String {
         return "$query $whereClause;"
+    }
+
+    private fun addSortOptionToQuery(query: String, sortOption: String): String {
+        return "$query $sortOption;"
+    }
+
+    fun getFilteredGames(genres: List<Int>, sortOption: IgdbSortOptions, callback: (List<GameItem>) -> Unit) {
+        val filteredGamesQuery =
+            IgdbQuery()
+                .addFields(listOf("name", "cover.image_id"))
+                .addWhereClause("genres = (${genres.joinToString(", ")})")
+                .addSortBy(sortOption)
+                .addLimit(30)
+                .buildQuery()
+
+        val call = RetrofitService.tmdbApi.getGames(createTextRequestBody(filteredGamesQuery))
     }
 
     fun getFamousGames(callback: (List<GameItem>) -> Unit) {
@@ -48,7 +66,16 @@ class GamesAccess {
         val threeWeeksAgo = calendar.timeInMillis / 1000
         val today = Calendar.getInstance().timeInMillis / 1000
 
-        val trendingGamesQuery = addWhereClauseToQuery(trendingGamesRequestBody, "where first_release_date > $threeWeeksAgo & first_release_date < $today")
+        val trendingGamesQuery =
+            IgdbQuery()
+                .addFields(listOf("name", "cover.image_id"))
+                .addWhereClause(
+                    "first_release_date > \"$threeWeeksAgo\"",
+                    "first_release_date < \"$today\""
+                )
+                .addSortBy(IgdbSortOptions.MOST_PLAYED)
+                .addLimit(20)
+                .buildQuery()
 
         val call = RetrofitService.tmdbApi.getGames(createTextRequestBody(trendingGamesQuery))
 

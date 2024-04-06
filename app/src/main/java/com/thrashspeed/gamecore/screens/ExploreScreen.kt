@@ -1,7 +1,14 @@
 package com.thrashspeed.gamecore.screens
 
+import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,26 +23,40 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -45,6 +66,7 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.thrashspeed.gamecore.R
 import com.thrashspeed.gamecore.data.model.GameItem
+import com.thrashspeed.gamecore.utils.igdb.IgdbData
 import com.thrashspeed.gamecore.utils.igdb.IgdbHelperMethods
 import com.thrashspeed.gamecore.utils.igdb.IgdbImageSizes
 
@@ -105,23 +127,20 @@ fun SliderWithTabs(navController: NavController, viewModel: ExploreViewModel, in
 @Composable
 fun GamesExploreContent(viewModel: ExploreViewModel, horizontalListScrollState: LazyListState, verticalListScrollState: LazyListState) {
     val trendingGamesState by remember(viewModel) { viewModel.trendingGames }.collectAsState()
-    val popularGamesState by remember(viewModel) { viewModel.popularGames }.collectAsState()
+    val popularGamesState by remember(viewModel) { viewModel.filteredGames }.collectAsState()
 
     Column (
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
     ) {
-        Text(
-            text = LocalContext.current.getString(R.string.explore_trendingGames),
-            style = MaterialTheme.typography.headlineMedium.copy(fontSize = 20.sp),
-            modifier = Modifier.padding(12.dp, 8.dp)
-        )
-        GamesHorizontalList(games = trendingGamesState, scrollState = horizontalListScrollState)
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = LocalContext.current.getString(R.string.explore_gamesCatalogue),
-            style = MaterialTheme.typography.headlineMedium.copy(fontSize = 20.sp),
-            modifier = Modifier.padding(12.dp, 8.dp)
-        )
+//        Text(
+//            text = LocalContext.current.getString(R.string.explore_trendingGames),
+//            style = MaterialTheme.typography.headlineMedium.copy(fontSize = 20.sp),
+//            modifier = Modifier.padding(12.dp, 8.dp)
+//        )
+//
+//        GamesHorizontalList(games = trendingGamesState, scrollState = horizontalListScrollState)
+//        Spacer(modifier = Modifier.height(8.dp))
         GamesVerticalList(games = popularGamesState, scrollState = verticalListScrollState)
     }
 }
@@ -131,39 +150,179 @@ fun PlatformsExploreContent(viewModel: ExploreViewModel, scrollState: LazyListSt
 
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun GenresBottomSheet(genresToApply: SnapshotStateList<Int>, onDismiss: () -> Unit) {
+    val modalBottomSheetState = rememberModalBottomSheetState()
+
+    ModalBottomSheet(
+        onDismissRequest = { onDismiss() },
+        sheetState = modalBottomSheetState,
+        dragHandle = { BottomSheetDefaults.DragHandle() },
+    ) {
+        GenresLabelsContainer(genresToApply)
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun GenresLabelsContainer(genresToApply: SnapshotStateList<Int>) {
+    FlowRow(
+        modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 48.dp)
+    ) {
+        IgdbData.genreIdNamePairs.forEach { (genreId, genreName) ->
+            var isSelected = genresToApply.contains(genreId)
+
+            GenreLabel(
+                genreName = genreName,
+                isSelected = isSelected,
+                onGenreSelected = {
+                    isSelected = !isSelected
+                    if (isSelected) {
+                        genresToApply.add(genreId)
+                    } else {
+                        genresToApply.remove(genreId)
+                    }
+                }
+            )
+        }
+    }
+}
+
+@Composable
+fun GenreLabel(
+    genreName: String,
+    isSelected: Boolean,
+    onGenreSelected: () -> Unit
+) {
+    val backgroundColor = if (isSelected) {
+        MaterialTheme.colorScheme.primary // Use primary color when selected
+    } else {
+        MaterialTheme.colorScheme.surface // Use surface color when not selected
+    }
+
+    Box(
+        modifier = Modifier
+            .padding(vertical = 4.dp, horizontal = 8.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .clickable { onGenreSelected() }
+            .background(color = backgroundColor)
+    ) {
+        Text(
+            text = genreName,
+            modifier = Modifier.padding(8.dp),
+            color = if (isSelected) {
+                MaterialTheme.colorScheme.onPrimary // Use onPrimary color when selected
+            } else {
+                MaterialTheme.colorScheme.onSurface // Use onSurface color when not selected
+            }
+        )
+    }
+}
+
 @Composable
 fun GamesVerticalList(
     games: List<GameItem>,
     scrollState: LazyListState
 ) {
-    LazyColumn(
-        state = scrollState
+    var showSheet by remember { mutableStateOf(false) }
+    var showDropdown by remember { mutableStateOf(false) }
+    var genresList = remember { mutableStateListOf<Int>() }
+
+    if (showSheet) {
+        GenresBottomSheet(
+            genresToApply = genresList
+        ) { showSheet = false }
+    }
+
+    Column (
     ) {
-        itemsIndexed(games) { index, game ->
-            Row (
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp, vertical = 4.dp)
-                    .border(width = 1.dp, color = Color.Gray, shape = RoundedCornerShape(8.dp))
-                    .padding(8.dp),
-                verticalAlignment = Alignment.CenterVertically
+        Row (
+            modifier = Modifier.padding(12.dp, 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = LocalContext.current.getString(R.string.explore_gamesCatalogue),
+                style = MaterialTheme.typography.headlineMedium.copy(fontSize = 20.sp),
+                modifier = Modifier.weight(1f)
+            )
+            IconButton(onClick = { showSheet = true }) {
+                Icon(imageVector = Icons.Default.FilterList, contentDescription = "FilterListIcon")
+            }
+            Button(
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = MaterialTheme.colorScheme.onBackground
+                ),
+                contentPadding = PaddingValues(8.dp),
+                onClick = { showDropdown = true }
             ) {
-                Text(text = "#${index + 1}")
-                Spacer(modifier = Modifier.width(16.dp))
-                AsyncImage(
-                    model = if (game.cover != null) IgdbHelperMethods.getImageUrl(game.cover.image_id ?: "", IgdbImageSizes.COVER_BIG) else R.drawable.ic_launcher_background,
-                    contentDescription = game.name + " cover image",
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(4.dp))
-                        .height(80.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = game.name
-                )
+                Row (
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = LocalContext.current.getString(R.string.explore_sortBy))
+                    Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = "SortByIcon")
+                }
+
+                if (showDropdown) {
+                    SortByDropDownMenu( showDropdown = true, onDismiss = { showDropdown = false } )
+                }
             }
         }
+
+        LazyColumn(
+            state = scrollState
+        ) {
+            itemsIndexed(games) { index, game ->
+                GameListItem(index = index, game = game)
+            }
+        }
+    }
+}
+
+@Composable
+fun GameListItem(index: Int, game: GameItem) {
+    Row (
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp, vertical = 4.dp)
+            .border(width = 1.dp, color = Color.Gray, shape = RoundedCornerShape(8.dp))
+            .padding(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(text = "#${index + 1}")
+        Spacer(modifier = Modifier.width(16.dp))
+        AsyncImage(
+            model = if (game.cover != null) IgdbHelperMethods.getImageUrl(game.cover.image_id ?: "", IgdbImageSizes.COVER_BIG) else R.drawable.ic_launcher_background,
+            contentDescription = game.name + " cover image",
+            contentScale = ContentScale.Fit,
+            modifier = Modifier
+                .clip(RoundedCornerShape(4.dp))
+                .height(80.dp)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = game.name
+        )
+    }
+}
+
+@Composable
+fun SortByDropDownMenu( showDropdown: Boolean, onDismiss: () -> Unit ) {
+    val context = LocalContext.current
+
+    DropdownMenu(
+        expanded = showDropdown,
+        onDismissRequest = { onDismiss() }
+    ) {
+        DropdownMenuItem(
+            text = { Text(text = context.getString(R.string.explore_sortByBestRated)) },
+            onClick = { Toast.makeText(context, "Load", Toast.LENGTH_SHORT).show() }
+        )
+        DropdownMenuItem(
+            text = { Text(text = context.getString(R.string.explore_sortByMostPlayed)) },
+            onClick = { Toast.makeText(context, "Save", Toast.LENGTH_SHORT).show() }
+        )
     }
 }
 
@@ -220,15 +379,6 @@ fun GameBigListItem(gameItem: GameItem) {
                 .clip(RoundedCornerShape(4.dp))
                 .align(Alignment.CenterHorizontally)
                 .height(190.dp)
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = gameItem.name ?: "",
-            color = MaterialTheme.colorScheme.onBackground,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
         )
     }
 }
