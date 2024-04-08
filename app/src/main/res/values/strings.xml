@@ -22,6 +22,7 @@
     <string name="explore_sortBy">Ordenar por</string>
     <string name="explore_sortByBestRated">Mejor valorados</string>
     <string name="explore_sortByMostPlayed">Más jugados</string>
+    <string name="explore_applyFilter">APLICAR FILTROS</string>
 
 <!--    Bottom nav bar -->
     <string name="bottonNavBar_explore">Explorar</string>

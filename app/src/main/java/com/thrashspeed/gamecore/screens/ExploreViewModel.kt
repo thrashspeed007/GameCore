@@ -47,10 +47,11 @@ class ExploreViewModel : ViewModel() {
         }
     }
 
-    fun updateGamesInList(genres: List<Int>, sortOption: IgdbSortOptions) {
+    fun updateGamesInList(genres: List<Int>, sortOption: IgdbSortOptions, callback: (Boolean) -> Unit) {
         viewModelScope.launch {
             gamesAccess.getFilteredGames(genres, sortOption) { games ->
                 _filteredGames.value = games
+                callback.invoke(true)
             }
         }
     }

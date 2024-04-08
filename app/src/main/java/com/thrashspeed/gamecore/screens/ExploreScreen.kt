@@ -1,6 +1,5 @@
 package com.thrashspeed.gamecore.screens
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -14,6 +13,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -43,6 +44,7 @@ import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -69,6 +71,7 @@ import com.thrashspeed.gamecore.data.model.GameItem
 import com.thrashspeed.gamecore.utils.igdb.IgdbData
 import com.thrashspeed.gamecore.utils.igdb.IgdbHelperMethods
 import com.thrashspeed.gamecore.utils.igdb.IgdbImageSizes
+import com.thrashspeed.gamecore.utils.igdb.IgdbSortOptions
 
 @Composable
 fun ExploreScreen(navController: NavController, viewModel: ExploreViewModel = viewModel()) {
@@ -78,11 +81,6 @@ fun ExploreScreen(navController: NavController, viewModel: ExploreViewModel = vi
 
 @Composable
 fun ExploreScreenBodyContent(navController: NavController, viewModel: ExploreViewModel, initialTabIndex: Int) {
-    SliderWithTabs(navController = navController, viewModel = viewModel, initialTabIndex = initialTabIndex)
-}
-
-@Composable
-fun SliderWithTabs(navController: NavController, viewModel: ExploreViewModel, initialTabIndex: Int) {
     var selectedTabIndex by remember { mutableIntStateOf(initialTabIndex) }
     val horizontalListScrollState = rememberLazyListState()
     val verticalListScrollState = rememberLazyListState()
@@ -123,11 +121,10 @@ fun SliderWithTabs(navController: NavController, viewModel: ExploreViewModel, in
     }
 }
 
-
 @Composable
 fun GamesExploreContent(viewModel: ExploreViewModel, horizontalListScrollState: LazyListState, verticalListScrollState: LazyListState) {
     val trendingGamesState by remember(viewModel) { viewModel.trendingGames }.collectAsState()
-    val popularGamesState by remember(viewModel) { viewModel.filteredGames }.collectAsState()
+    val filteredGamesState by remember(viewModel) { viewModel.filteredGames }.collectAsState()
 
     Column (
         modifier = Modifier
@@ -141,7 +138,7 @@ fun GamesExploreContent(viewModel: ExploreViewModel, horizontalListScrollState: 
 //
 //        GamesHorizontalList(games = trendingGamesState, scrollState = horizontalListScrollState)
 //        Spacer(modifier = Modifier.height(8.dp))
-        GamesVerticalList(games = popularGamesState, scrollState = verticalListScrollState)
+        GamesVerticalList(viewModel = viewModel, games = filteredGamesState, scrollState = verticalListScrollState)
     }
 }
 
@@ -152,7 +149,7 @@ fun PlatformsExploreContent(viewModel: ExploreViewModel, scrollState: LazyListSt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GenresBottomSheet(genresToApply: SnapshotStateList<Int>, onDismiss: () -> Unit) {
+fun GenresBottomSheet(viewModel: ExploreViewModel, genresToApply: SnapshotStateList<Int>, sortOption: MutableState<IgdbSortOptions>, isLoading: MutableState<Boolean>, onDismiss: () -> Unit) {
     val modalBottomSheetState = rememberModalBottomSheetState()
 
     ModalBottomSheet(
@@ -160,7 +157,25 @@ fun GenresBottomSheet(genresToApply: SnapshotStateList<Int>, onDismiss: () -> Un
         sheetState = modalBottomSheetState,
         dragHandle = { BottomSheetDefaults.DragHandle() },
     ) {
-        GenresLabelsContainer(genresToApply)
+        Column (
+            modifier = Modifier.navigationBarsPadding(),
+        ) {
+            Button(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 12.dp, end = 12.dp, bottom = 12.dp),
+                onClick = {
+                    isLoading.value = true
+                    viewModel.updateGamesInList(genresToApply, sortOption.value) { success ->
+                        if (success) isLoading.value = false
+                    }
+                    onDismiss()
+                }
+            ) {
+                Text(text = LocalContext.current.getString(R.string.explore_applyFilter))
+            }
+            GenresLabelsContainer(genresToApply)
+        }
     }
 }
 
@@ -168,7 +183,6 @@ fun GenresBottomSheet(genresToApply: SnapshotStateList<Int>, onDismiss: () -> Un
 @Composable
 fun GenresLabelsContainer(genresToApply: SnapshotStateList<Int>) {
     FlowRow(
-        modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 48.dp)
     ) {
         IgdbData.genreIdNamePairs.forEach { (genreId, genreName) ->
             var isSelected = genresToApply.contains(genreId)
@@ -222,21 +236,31 @@ fun GenreLabel(
 
 @Composable
 fun GamesVerticalList(
+    viewModel: ExploreViewModel,
     games: List<GameItem>,
     scrollState: LazyListState
 ) {
+    val context = LocalContext.current
+
     var showSheet by remember { mutableStateOf(false) }
     var showDropdown by remember { mutableStateOf(false) }
-    var genresList = remember { mutableStateListOf<Int>() }
+    val isLoading = remember { mutableStateOf(false) }
+    val dropdownMenuTitle = remember { mutableStateOf(context.getString(R.string.explore_sortByMostPlayed)) }
+    val genresList = remember { mutableStateListOf<Int>() }
+    val sortOption = remember { mutableStateOf(IgdbSortOptions.MOST_PLAYED) }
 
     if (showSheet) {
         GenresBottomSheet(
-            genresToApply = genresList
-        ) { showSheet = false }
+            viewModel = viewModel,
+            sortOption = sortOption,
+            genresToApply = genresList,
+            isLoading = isLoading
+        ) {
+            showSheet = false
+        }
     }
 
-    Column (
-    ) {
+    Column {
         Row (
             modifier = Modifier.padding(12.dp, 8.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -260,23 +284,39 @@ fun GamesVerticalList(
                 Row (
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = LocalContext.current.getString(R.string.explore_sortBy))
+                    Text(text = dropdownMenuTitle.value)
                     Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = "SortByIcon")
                 }
 
                 if (showDropdown) {
-                    SortByDropDownMenu( showDropdown = true, onDismiss = { showDropdown = false } )
+                    SortByDropDownMenu(viewModel = viewModel, sortOption = sortOption, genresToApply = genresList, showDropdown = true, dropdownTitle = dropdownMenuTitle, isLoading = isLoading) {
+                        showDropdown = false
+                    }
                 }
             }
         }
 
-        LazyColumn(
-            state = scrollState
-        ) {
-            itemsIndexed(games) { index, game ->
-                GameListItem(index = index, game = game)
+        if (isLoading.value) {
+            LoadingIndicator()
+        } else {
+            LazyColumn(
+                state = scrollState
+            ) {
+                itemsIndexed(games) { index, game ->
+                    GameListItem(index = index, game = game)
+                }
             }
         }
+    }
+}
+
+@Composable
+fun LoadingIndicator() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator()
     }
 }
 
@@ -290,8 +330,10 @@ fun GameListItem(index: Int, game: GameItem) {
             .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = "#${index + 1}")
-        Spacer(modifier = Modifier.width(16.dp))
+        Text(
+            modifier = Modifier.width(42.dp),
+            text = "#${index + 1}"
+        )
         AsyncImage(
             model = if (game.cover != null) IgdbHelperMethods.getImageUrl(game.cover.image_id ?: "", IgdbImageSizes.COVER_BIG) else R.drawable.ic_launcher_background,
             contentDescription = game.name + " cover image",
@@ -308,7 +350,7 @@ fun GameListItem(index: Int, game: GameItem) {
 }
 
 @Composable
-fun SortByDropDownMenu( showDropdown: Boolean, onDismiss: () -> Unit ) {
+fun SortByDropDownMenu(viewModel: ExploreViewModel, genresToApply: SnapshotStateList<Int>, sortOption: MutableState<IgdbSortOptions>, showDropdown: Boolean, dropdownTitle: MutableState<String>, isLoading: MutableState<Boolean>, onDismiss: () -> Unit ) {
     val context = LocalContext.current
 
     DropdownMenu(
@@ -317,11 +359,31 @@ fun SortByDropDownMenu( showDropdown: Boolean, onDismiss: () -> Unit ) {
     ) {
         DropdownMenuItem(
             text = { Text(text = context.getString(R.string.explore_sortByBestRated)) },
-            onClick = { Toast.makeText(context, "Load", Toast.LENGTH_SHORT).show() }
+            onClick = {
+                sortOption.value = IgdbSortOptions.RATING
+                dropdownTitle.value = context.getString(R.string.explore_sortByBestRated)
+
+                isLoading.value = true
+                viewModel.updateGamesInList(genresToApply, sortOption.value) { success ->
+                    if (success) isLoading.value = false
+                }
+
+                onDismiss()
+            }
         )
         DropdownMenuItem(
             text = { Text(text = context.getString(R.string.explore_sortByMostPlayed)) },
-            onClick = { Toast.makeText(context, "Save", Toast.LENGTH_SHORT).show() }
+            onClick = {
+                sortOption.value = IgdbSortOptions.MOST_PLAYED
+                dropdownTitle.value = context.getString(R.string.explore_sortByMostPlayed)
+
+                isLoading.value = true
+                viewModel.updateGamesInList(genresToApply, sortOption.value) { success ->
+                    if (success) isLoading.value = false
+                }
+
+                onDismiss()
+            }
         )
     }
 }

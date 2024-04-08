@@ -15,30 +15,39 @@ import java.util.Calendar
 
 class GamesAccess {
     private val famousGamesRequestBody = "fields name, cover.image_id; sort total_rating_count desc; limit 30;"
-    private val trendingGamesRequestBody = "fields name, cover.image_id; sort total_rating_count desc; limit 20;"
 
     private fun createTextRequestBody(body: String): RequestBody {
         return body.toRequestBody("text/plain".toMediaTypeOrNull())
-    }
-
-    private fun addWhereClauseToQuery(query: String, whereClause: String): String {
-        return "$query $whereClause;"
-    }
-
-    private fun addSortOptionToQuery(query: String, sortOption: String): String {
-        return "$query $sortOption;"
     }
 
     fun getFilteredGames(genres: List<Int>, sortOption: IgdbSortOptions, callback: (List<GameItem>) -> Unit) {
         val filteredGamesQuery =
             IgdbQuery()
                 .addFields(listOf("name", "cover.image_id"))
-                .addWhereClause("genres = (${genres.joinToString(", ")})")
+                .addWhereClause(if (genres.isNotEmpty()) "genres = [${genres.joinToString(", ")}]" else "", "total_rating_count >= 200")
                 .addSortBy(sortOption)
                 .addLimit(30)
                 .buildQuery()
+        Log.d("llega", "query: $filteredGamesQuery")
 
         val call = RetrofitService.tmdbApi.getGames(createTextRequestBody(filteredGamesQuery))
+
+        call.enqueue(object : Callback<List<GameItem>> {
+            override fun onFailure(call: Call<List<GameItem>>, t: Throwable) {
+                Log.d("GamesAccess", "getFilteredGames:onFailure: " + t.message)
+            }
+
+            override fun onResponse(
+                call: Call<List<GameItem>>,
+                response: Response<List<GameItem>>
+            ) {
+                val games = response.body()
+
+                if (games != null) {
+                    callback.invoke(games)
+                }
+            }
+        })
     }
 
     fun getFamousGames(callback: (List<GameItem>) -> Unit) {

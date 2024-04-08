@@ -4,20 +4,23 @@ class IgdbQuery {
     private val queryBuilder = StringBuilder()
 
     fun addFields(fields: List<String>): IgdbQuery {
-        appendQuery("fields ${fields.joinToString( separator = ", " )}")
+        appendQuery("fields ${fields.joinToString( separator = ", " )};")
         return this
     }
 
-    fun addSortBy(field: IgdbSortOptions, order: SortOrder = SortOrder.ASCENDING): IgdbQuery {
+    fun addSortBy(field: IgdbSortOptions, order: SortOrder = SortOrder.DESCENDING): IgdbQuery {
         appendQuery("sort ${field.sortOption} ${order.sortOrder};")
         return this
     }
 
     fun addWhereClause(vararg conditions: String): IgdbQuery {
-        if (conditions.isNotEmpty()) {
-            val whereClause = conditions.joinToString(" & ", prefix = "where ", postfix = ";")
+        val nonEmptyConditions = conditions.filter { it.isNotBlank() }
+
+        if (nonEmptyConditions.isNotEmpty()) {
+            val whereClause = nonEmptyConditions.joinToString(" & ", prefix = "where ", postfix = ";")
             appendQuery(whereClause)
         }
+
         return this
     }
 
