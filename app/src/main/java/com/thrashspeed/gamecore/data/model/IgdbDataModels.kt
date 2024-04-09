@@ -57,3 +57,14 @@ data class GameCover(
     val id: Int,
     val image_id: String
 )
+
+data class PlatformItem(
+    val id: Int,
+    val name: String,
+    val platform_logo: PlatformLogo
+)
+
+data class PlatformLogo(
+    val id: Int,
+    val image_id: String
+)

@@ -28,7 +28,6 @@ class GamesAccess {
                 .addSortBy(sortOption)
                 .addLimit(30)
                 .buildQuery()
-        Log.d("llega", "query: $filteredGamesQuery")
 
         val call = RetrofitService.tmdbApi.getGames(createTextRequestBody(filteredGamesQuery))
 
@@ -50,6 +49,8 @@ class GamesAccess {
         })
     }
 
+    // TODO
+    // HACER CON IDGBQUERY EN VEZ DEL STRING ESE CUTRE
     fun getFamousGames(callback: (List<GameItem>) -> Unit) {
         val call = RetrofitService.tmdbApi.getGames(createTextRequestBody(famousGamesRequestBody))
 
@@ -77,7 +78,7 @@ class GamesAccess {
 
         val trendingGamesQuery =
             IgdbQuery()
-                .addFields(listOf("name", "cover.image_id"))
+                .addFields(listOf("name", "platform_logo.image_id"))
                 .addWhereClause(
                     "first_release_date > \"$threeWeeksAgo\"",
                     "first_release_date < \"$today\""

@@ -3,6 +3,7 @@ package com.thrashspeed.gamecore.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -59,6 +60,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -68,6 +70,7 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.thrashspeed.gamecore.R
 import com.thrashspeed.gamecore.data.model.GameItem
+import com.thrashspeed.gamecore.data.model.PlatformItem
 import com.thrashspeed.gamecore.utils.igdb.IgdbData
 import com.thrashspeed.gamecore.utils.igdb.IgdbHelperMethods
 import com.thrashspeed.gamecore.utils.igdb.IgdbImageSizes
@@ -84,6 +87,7 @@ fun ExploreScreenBodyContent(navController: NavController, viewModel: ExploreVie
     var selectedTabIndex by remember { mutableIntStateOf(initialTabIndex) }
     val horizontalListScrollState = rememberLazyListState()
     val verticalListScrollState = rememberLazyListState()
+    val gridListScrollState = rememberLazyListState()
 
     val tabs = listOf(LocalContext.current.getString(R.string.exploreTabs_games), LocalContext.current.getString(R.string.exploreTabs_platforms))
 
@@ -115,7 +119,7 @@ fun ExploreScreenBodyContent(navController: NavController, viewModel: ExploreVie
         ) {
             when (selectedTabIndex) {
                 0 -> GamesExploreContent(viewModel, horizontalListScrollState, verticalListScrollState)
-                1 -> Text("Content for platforms")
+                1 -> PlatformsExploreContent(viewModel = viewModel, scrollState = gridListScrollState)
             }
         }
     }
@@ -144,7 +148,14 @@ fun GamesExploreContent(viewModel: ExploreViewModel, horizontalListScrollState: 
 
 @Composable
 fun PlatformsExploreContent(viewModel: ExploreViewModel, scrollState: LazyListState) {
+    val platformsList by remember(viewModel) { viewModel.filteredPlatforms }.collectAsState()
 
+    Column (
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        PlatformsGrid(platforms = platformsList, scrollState = scrollState)
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -388,31 +399,40 @@ fun SortByDropDownMenu(viewModel: ExploreViewModel, genresToApply: SnapshotState
     }
 }
 
-//@Composable
-//fun GamesGrid(
-//    games: List<GameItem>,
-//    modifier: Modifier = Modifier
-//) {
-//    LazyColumn(modifier = modifier) {
-//        items(games.chunked(3)) { chunk ->
-//            Row(
-//                modifier = Modifier.fillMaxWidth(),
-//                horizontalArrangement = Arrangement.SpaceEvenly
-//            ) {
-//                chunk.forEach { game ->
-//                    AsyncImage(
-//                        model = if (game.cover != null) IgdbHelperMethods.getImageUrl(game.cover.image_id ?: "", IgdbImageSizes.COVER_BIG) else R.drawable.ic_launcher_background,
-//                        contentDescription = game.name + " cover image",
-//                        contentScale = ContentScale.Fit,
-//                        modifier = Modifier
-//                            .clip(RoundedCornerShape(4.dp))
-//                    )
-//                }
-//            }
-//            Spacer(modifier = Modifier.height(16.dp))
-//        }
-//    }
-//}
+@Composable
+fun PlatformsGrid(
+    platforms: List<PlatformItem>,
+    scrollState: LazyListState,
+    modifier: Modifier = Modifier
+) {
+    LazyColumn(modifier = modifier, state = scrollState) {
+        items(platforms.chunked(3)) { chunk ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                chunk.forEach { platform ->
+                    Column {
+                        AsyncImage(
+                            model = if (platform.platform_logo != null) IgdbHelperMethods.getImageUrl(platform.platform_logo.image_id ?: "", IgdbImageSizes.SIZE_720P) else R.drawable.ic_launcher_background,
+                            contentDescription = platform.name + " logo",
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .width(120.dp)
+                                .height(120.dp)
+                        )
+                        Text(
+                            textAlign = TextAlign.Center,
+                            text = platform.name
+                        )
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+    }
+}
 
 @Composable
 fun GamesHorizontalList(games: List<GameItem>, scrollState: LazyListState) {
