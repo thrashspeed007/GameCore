@@ -3,6 +3,8 @@ package com.thrashspeed.gamecore.navigation
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
@@ -31,6 +33,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.thrashspeed.gamecore.R
 import com.thrashspeed.gamecore.screens.ExploreScreen
+import com.thrashspeed.gamecore.screens.GameDetailsScreen
 import com.thrashspeed.gamecore.screens.GamesTrackerScreen
 
 @Composable
@@ -60,6 +63,21 @@ fun AppNavigation() {
                 exitTransition = { scaleOut(tween(200)) }
             ) {
                 GamesTrackerScreen(navController)
+            }
+            composable(
+                route ="${AppScreens.GameDetailsScreen.route}/{gameId}",
+                enterTransition = { slideInHorizontally(
+                    initialOffsetX = { it },
+                    animationSpec = tween(300)
+                ) },
+                exitTransition = { slideOutHorizontally(
+                    targetOffsetX = { it },
+                    animationSpec = tween(300)
+                ) }
+            ) {
+                val gameId = it.arguments?.getString("gameId")
+
+                GameDetailsScreen(navController = navController, gameId = gameId?.toInt() ?: -1)
             }
         }
     }

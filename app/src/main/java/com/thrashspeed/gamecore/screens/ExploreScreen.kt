@@ -71,6 +71,7 @@ import coil.compose.AsyncImage
 import com.thrashspeed.gamecore.R
 import com.thrashspeed.gamecore.data.model.GameItem
 import com.thrashspeed.gamecore.data.model.PlatformItem
+import com.thrashspeed.gamecore.navigation.AppScreens
 import com.thrashspeed.gamecore.utils.igdb.IgdbData
 import com.thrashspeed.gamecore.utils.igdb.IgdbHelperMethods
 import com.thrashspeed.gamecore.utils.igdb.IgdbImageSizes
@@ -118,7 +119,7 @@ fun ExploreScreenBodyContent(navController: NavController, viewModel: ExploreVie
         Column (
         ) {
             when (selectedTabIndex) {
-                0 -> GamesExploreContent(viewModel, horizontalListScrollState, verticalListScrollState)
+                0 -> GamesExploreContent(navController, viewModel, horizontalListScrollState, verticalListScrollState)
                 1 -> PlatformsExploreContent(viewModel = viewModel, scrollState = gridListScrollState)
             }
         }
@@ -126,7 +127,7 @@ fun ExploreScreenBodyContent(navController: NavController, viewModel: ExploreVie
 }
 
 @Composable
-fun GamesExploreContent(viewModel: ExploreViewModel, horizontalListScrollState: LazyListState, verticalListScrollState: LazyListState) {
+fun GamesExploreContent(navController: NavController, viewModel: ExploreViewModel, horizontalListScrollState: LazyListState, verticalListScrollState: LazyListState) {
     val trendingGamesState by remember(viewModel) { viewModel.trendingGames }.collectAsState()
     val filteredGamesState by remember(viewModel) { viewModel.filteredGames }.collectAsState()
 
@@ -142,7 +143,7 @@ fun GamesExploreContent(viewModel: ExploreViewModel, horizontalListScrollState: 
 //
 //        GamesHorizontalList(games = trendingGamesState, scrollState = horizontalListScrollState)
 //        Spacer(modifier = Modifier.height(8.dp))
-        GamesVerticalList(viewModel = viewModel, games = filteredGamesState, scrollState = verticalListScrollState)
+        GamesVerticalList(navController = navController, viewModel = viewModel, games = filteredGamesState, scrollState = verticalListScrollState)
     }
 }
 
@@ -247,6 +248,7 @@ fun GenreLabel(
 
 @Composable
 fun GamesVerticalList(
+    navController: NavController,
     viewModel: ExploreViewModel,
     games: List<GameItem>,
     scrollState: LazyListState
@@ -314,7 +316,9 @@ fun GamesVerticalList(
                 state = scrollState
             ) {
                 itemsIndexed(games) { index, game ->
-                    GameListItem(index = index, game = game)
+                    GameListItem(index = index, game = game) { gameClickedId ->
+                        navController.navigate("${AppScreens.GameDetailsScreen.route}/$gameClickedId")
+                    }
                 }
             }
         }
@@ -332,13 +336,14 @@ fun LoadingIndicator() {
 }
 
 @Composable
-fun GameListItem(index: Int, game: GameItem) {
+fun GameListItem(index: Int, game: GameItem, onItemClick: (Int) -> Unit) {
     Row (
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp, vertical = 4.dp)
             .border(width = 1.dp, color = Color.Gray, shape = RoundedCornerShape(8.dp))
-            .padding(8.dp),
+            .padding(8.dp)
+            .clickable { onItemClick(game.id) },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
@@ -414,7 +419,7 @@ fun PlatformsGrid(
                 chunk.forEach { platform ->
                     Column {
                         AsyncImage(
-                            model = if (platform.platform_logo != null) IgdbHelperMethods.getImageUrl(platform.platform_logo.image_id ?: "", IgdbImageSizes.SIZE_720P) else R.drawable.ic_launcher_background,
+                            model = if (platform.platform_logo != null) IgdbHelperMethods.getImageUrl(platform.platform_logo.image_id ?: "", IgdbImageSizes.SCREENSHOT_MED) else R.drawable.ic_launcher_background,
                             contentDescription = platform.name + " logo",
                             contentScale = ContentScale.Fit,
                             modifier = Modifier
