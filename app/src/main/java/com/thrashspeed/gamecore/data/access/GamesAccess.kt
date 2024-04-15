@@ -1,6 +1,7 @@
 package com.thrashspeed.gamecore.data.access
 
 import android.util.Log
+import com.thrashspeed.gamecore.data.model.GameDetailed
 import com.thrashspeed.gamecore.data.model.GameItem
 import com.thrashspeed.gamecore.network.RetrofitService
 import com.thrashspeed.gamecore.utils.igdb.IgdbQuery
@@ -18,6 +19,30 @@ class GamesAccess {
 
     private fun createTextRequestBody(body: String): RequestBody {
         return body.toRequestBody("text/plain".toMediaTypeOrNull())
+    }
+
+    fun getGameDetails(id: Int, callback: (List<GameDetailed>) -> Unit) {
+        val gameDetailsQuery =
+            IgdbQuery()
+                .addFields(listOf("name", "summary", "cover.image_id", "genres.name", "involved_companies", "first_release_date", "total_rating"))
+                .addWhereClause("id = ($id)")
+                .buildQuery()
+
+        val call = RetrofitService.tmdbApi.getGame(createTextRequestBody(gameDetailsQuery))
+
+        call.enqueue(object : Callback<List<GameDetailed>> {
+            override fun onFailure(call: Call<List<GameDetailed>>, t: Throwable) {
+                Log.d("GamesAccess", "getGameDetails:onFailure: " + t.message)
+            }
+
+            override fun onResponse(call: Call<List<GameDetailed>>, response: Response<List<GameDetailed>>) {
+                val game = response.body()
+
+                if (game != null) {
+                    callback.invoke(game)
+                }
+            }
+        })
     }
 
     fun getFilteredGames(genres: List<Int>, sortOption: IgdbSortOptions, callback: (List<GameItem>) -> Unit) {

@@ -30,7 +30,6 @@ import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -72,6 +71,8 @@ import com.thrashspeed.gamecore.R
 import com.thrashspeed.gamecore.data.model.GameItem
 import com.thrashspeed.gamecore.data.model.PlatformItem
 import com.thrashspeed.gamecore.navigation.AppScreens
+import com.thrashspeed.gamecore.screens.viewmodels.ExploreViewModel
+import com.thrashspeed.gamecore.utils.composables.LoadingIndicator
 import com.thrashspeed.gamecore.utils.igdb.IgdbData
 import com.thrashspeed.gamecore.utils.igdb.IgdbHelperMethods
 import com.thrashspeed.gamecore.utils.igdb.IgdbImageSizes
@@ -326,16 +327,6 @@ fun GamesVerticalList(
 }
 
 @Composable
-fun LoadingIndicator() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        CircularProgressIndicator()
-    }
-}
-
-@Composable
 fun GameListItem(index: Int, game: GameItem, onItemClick: (Int) -> Unit) {
     Row (
         modifier = Modifier
@@ -365,6 +356,8 @@ fun GameListItem(index: Int, game: GameItem, onItemClick: (Int) -> Unit) {
     }
 }
 
+// TODO
+// GUARDAR OPCIÓN SELECCIONADA DEL DROPDOWN CUANDO SE VUELVE A LA PANTALLA TRAS NAVEGAR
 @Composable
 fun SortByDropDownMenu(viewModel: ExploreViewModel, genresToApply: SnapshotStateList<Int>, sortOption: MutableState<IgdbSortOptions>, showDropdown: Boolean, dropdownTitle: MutableState<String>, isLoading: MutableState<Boolean>, onDismiss: () -> Unit ) {
     val context = LocalContext.current

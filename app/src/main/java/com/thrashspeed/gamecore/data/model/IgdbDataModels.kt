@@ -9,7 +9,7 @@ data class Game(
     val checksum: String,
     val collection: Int,
     val collections: List<Int>,
-    val cover: Int,
+    val cover: GameCover,
     val created_at: Int,
     val external_games: List<Int>,
     val first_release_date: Int,
@@ -47,10 +47,25 @@ data class Game(
     val websites: List<Int>
 )
 
+data class GameDetailed(
+    val name: String,
+    val summary: String,
+    val first_release_date: Long,
+    val involved_companies: List<String>,
+    val cover: GameCover,
+    val total_rating: Double,
+    val genres: List<Genres>
+)
+
 data class GameItem(
     val id: Int,
     val name: String,
     val cover: GameCover
+)
+
+data class Genres(
+    val id: Int,
+    val name: String
 )
 
 data class GameCover(

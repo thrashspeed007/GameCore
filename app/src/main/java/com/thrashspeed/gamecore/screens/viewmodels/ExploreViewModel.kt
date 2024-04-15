@@ -1,4 +1,4 @@
-package com.thrashspeed.gamecore.screens
+package com.thrashspeed.gamecore.screens.viewmodels
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableIntStateOf

@@ -26,7 +26,6 @@ class PlatformsAccess {
                 .addSortBy(IgdbSortOptions.GENERATION)
                 .addLimit(28)
                 .buildQuery()
-        Log.d("llega", latestPlatformsQuery)
 
         val call = RetrofitService.tmdbApi.getPlatforms(createTextRequestBody(latestPlatformsQuery))
 
