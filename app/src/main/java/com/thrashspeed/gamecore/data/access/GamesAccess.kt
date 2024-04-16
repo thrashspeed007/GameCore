@@ -15,10 +15,38 @@ import retrofit2.Response
 import java.util.Calendar
 
 class GamesAccess {
-    private val famousGamesRequestBody = "fields name, cover.image_id; sort total_rating_count desc; limit 30;"
-
     private fun createTextRequestBody(body: String): RequestBody {
         return body.toRequestBody("text/plain".toMediaTypeOrNull())
+    }
+
+    fun searchGames(search: String, callback: (List<GameItem>) -> Unit) {
+        val searchGamesQuery =
+            IgdbQuery()
+                .addFields(listOf("name", "cover.image_id", "first_release_date"))
+                .addSearch(search)
+                .addWhereClause("total_rating_count > 30")
+                .addLimit(30)
+                .buildQuery()
+        Log.d("busca", searchGamesQuery)
+
+        val call = RetrofitService.tmdbApi.getGames(createTextRequestBody(searchGamesQuery))
+
+        call.enqueue(object : Callback<List<GameItem>> {
+            override fun onFailure(call: Call<List<GameItem>>, t: Throwable) {
+                Log.d("GamesAccess", "searchGames:onFailure: " + t.message)
+            }
+
+            override fun onResponse(
+                call: Call<List<GameItem>>,
+                response: Response<List<GameItem>>
+            ) {
+                val games = response.body()
+
+                if (games != null) {
+                    callback.invoke(games)
+                }
+            }
+        })
     }
 
     fun getGameDetails(id: Int, callback: (List<GameDetailed>) -> Unit) {
@@ -48,7 +76,7 @@ class GamesAccess {
     fun getFilteredGames(genres: List<Int>, sortOption: IgdbSortOptions, callback: (List<GameItem>) -> Unit) {
         val filteredGamesQuery =
             IgdbQuery()
-                .addFields(listOf("name", "cover.image_id"))
+                .addFields(listOf("name", "cover.image_id", "first_release_date"))
                 .addWhereClause(if (genres.isNotEmpty()) "genres = [${genres.joinToString(", ")}]" else "", "total_rating_count >= 200")
                 .addSortBy(sortOption)
                 .addLimit(30)
@@ -77,7 +105,14 @@ class GamesAccess {
     // TODO
     // HACER CON IDGBQUERY EN VEZ DEL STRING ESE CUTRE
     fun getFamousGames(callback: (List<GameItem>) -> Unit) {
-        val call = RetrofitService.tmdbApi.getGames(createTextRequestBody(famousGamesRequestBody))
+        val famousGamesQuery =
+            IgdbQuery()
+                .addFields(listOf("name", "cover.image_id", "first_release_date"))
+                .addSortBy(IgdbSortOptions.MOST_PLAYED)
+                .addLimit(30)
+                .buildQuery()
+
+        val call = RetrofitService.tmdbApi.getGames(createTextRequestBody(famousGamesQuery))
 
         call.enqueue(object : Callback<List<GameItem>> {
             override fun onFailure(call: Call<List<GameItem>>, t: Throwable) {

@@ -8,6 +8,11 @@ class IgdbQuery {
         return this
     }
 
+    fun addSearch(search: String): IgdbQuery {
+        appendQuery("search \"$search\";")
+        return this
+    }
+
     fun addSortBy(field: IgdbSortOptions, order: SortOrder = SortOrder.DESCENDING): IgdbQuery {
         appendQuery("sort ${field.sortOption} ${order.sortOrder};")
         return this

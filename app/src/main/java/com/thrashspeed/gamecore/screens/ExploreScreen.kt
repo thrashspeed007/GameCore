@@ -77,6 +77,9 @@ import com.thrashspeed.gamecore.utils.igdb.IgdbData
 import com.thrashspeed.gamecore.utils.igdb.IgdbHelperMethods
 import com.thrashspeed.gamecore.utils.igdb.IgdbImageSizes
 import com.thrashspeed.gamecore.utils.igdb.IgdbSortOptions
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun ExploreScreen(navController: NavController, viewModel: ExploreViewModel = viewModel()) {
@@ -314,6 +317,7 @@ fun GamesVerticalList(
             LoadingIndicator()
         } else {
             LazyColumn(
+                modifier = Modifier.padding(horizontal = 12.dp),
                 state = scrollState
             ) {
                 itemsIndexed(games) { index, game ->
@@ -331,7 +335,7 @@ fun GameListItem(index: Int, game: GameItem, onItemClick: (Int) -> Unit) {
     Row (
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 4.dp)
+            .padding(vertical = 4.dp)
             .border(width = 1.dp, color = Color.Gray, shape = RoundedCornerShape(8.dp))
             .padding(8.dp)
             .clickable { onItemClick(game.id) },
@@ -350,9 +354,17 @@ fun GameListItem(index: Int, game: GameItem, onItemClick: (Int) -> Unit) {
                 .height(80.dp)
         )
         Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = game.name
-        )
+        Column (
+        ) {
+            Text(
+                text = game.name
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                color = Color.Gray,
+                text = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date(game.first_release_date * 1000))
+            )
+        }
     }
 }
 

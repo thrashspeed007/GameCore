@@ -60,7 +60,8 @@ data class GameDetailed(
 data class GameItem(
     val id: Int,
     val name: String,
-    val cover: GameCover
+    val cover: GameCover,
+    val first_release_date: Long
 )
 
 data class Genres(

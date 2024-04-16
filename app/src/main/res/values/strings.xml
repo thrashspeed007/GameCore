@@ -25,9 +25,10 @@
     <string name="explore_applyFilter">APLICAR FILTROS</string>
 
 <!--    Bottom nav bar -->
-    <string name="bottonNavBar_explore">Explorar</string>
-    <string name="bottonNavBar_myGames">Mis Juegos</string>
+    <string name="bottonNavBar_explore">Explore</string>
+    <string name="bottonNavBar_myGames">My Games</string>
+    <string name="bottomNavBar_search">Search</string>
     <string name="bottonNavBar_social">Social</string>
-    <string name="bottonNavBar_profile">Perfil</string>
+    <string name="bottonNavBar_profile">Profile</string>
 
 </resources>

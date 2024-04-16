@@ -35,6 +35,7 @@ import com.thrashspeed.gamecore.R
 import com.thrashspeed.gamecore.screens.ExploreScreen
 import com.thrashspeed.gamecore.screens.GameDetailsScreen
 import com.thrashspeed.gamecore.screens.GamesTrackerScreen
+import com.thrashspeed.gamecore.screens.SearchGamesScreen
 
 @Composable
 fun AppNavigation() {
@@ -63,6 +64,13 @@ fun AppNavigation() {
                 exitTransition = { scaleOut(tween(200)) }
             ) {
                 GamesTrackerScreen(navController)
+            }
+            composable(
+                route = AppScreens.SearchGamesScreen.route,
+                enterTransition = { scaleIn(tween(200, 200)) },
+                exitTransition = { scaleOut(tween(200)) }
+            ) {
+                SearchGamesScreen(navController)
             }
             composable(
                 route ="${AppScreens.GameDetailsScreen.route}/{gameId}",
