@@ -13,14 +13,15 @@ class SearchGamesViewModel: ViewModel() {
     private val _gamesSearched = MutableStateFlow<List<GameItem>>(emptyList())
     val gamesSearched = _gamesSearched
 
-    init {
-        fetchGamesBySearch(search = "")
-    }
+//    init {
+//        fetchGamesBySearch(search = "")
+//    }
 
-    fun fetchGamesBySearch(search: String) {
+    fun fetchGamesBySearch(search: String,  callback: (Boolean) -> Unit) {
         viewModelScope.launch {
             gamesAccess.searchGames(search) { games ->
                 _gamesSearched.value = games
+                callback.invoke(games.isNotEmpty())
             }
         }
     }
