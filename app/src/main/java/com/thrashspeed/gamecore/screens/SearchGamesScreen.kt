@@ -40,7 +40,8 @@ fun SearchGamesScreen(navController: NavController, viewModel: SearchGamesViewMo
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchGamesScreenBodyContent(navController: NavController, viewModel: SearchGamesViewModel) {
-    var searchText by remember { mutableStateOf("") }
+    val searchText = viewModel.searchText.value
+    var searchTextState by remember { mutableStateOf(searchText) }
     val searchedGamesState by remember(viewModel) { viewModel.gamesSearched }.collectAsState()
     val verticalListScrollState = rememberLazyListState()
     var loading by remember { mutableStateOf(false) }
@@ -57,7 +58,10 @@ fun SearchGamesScreenBodyContent(navController: NavController, viewModel: Search
         SearchBar(
             modifier = Modifier.padding(bottom = 4.dp),
             query = searchText,
-            onQueryChange = { searchText = it },
+            onQueryChange = {
+                searchTextState = it
+                viewModel.setSearchText(it)
+            },
             onSearch = {
                 loading = true
                 keyboardController?.hide()
@@ -75,7 +79,7 @@ fun SearchGamesScreenBodyContent(navController: NavController, viewModel: Search
             },
             trailingIcon = {
                 if (searchText.isNotEmpty()) {
-                    IconButton(onClick = { searchText = "" }) {
+                    IconButton(onClick = { searchTextState = "" }) {
                         Icon(imageVector = Icons.Default.Clear, contentDescription = "Clear icon")
                     }
                 }
@@ -103,7 +107,9 @@ fun SearchGamesScreenBodyContent(navController: NavController, viewModel: Search
                 ) {
                     itemsIndexed(searchedGamesState) { index, game ->
                         GameListItem(index = index, game = game) { gameClickedId ->
-                            navController.navigate("${AppScreens.GameDetailsScreen.route}/$gameClickedId")
+                            navController.navigate("${AppScreens.GameDetailsScreen.route}/$gameClickedId") {
+
+                            }
                         }
                     }
                 }

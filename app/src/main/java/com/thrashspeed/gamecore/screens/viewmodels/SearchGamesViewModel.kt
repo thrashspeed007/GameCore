@@ -1,5 +1,7 @@
 package com.thrashspeed.gamecore.screens.viewmodels
 
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.thrashspeed.gamecore.data.access.GamesAccess
@@ -9,13 +11,15 @@ import kotlinx.coroutines.launch
 
 class SearchGamesViewModel: ViewModel() {
     private val gamesAccess = GamesAccess()
+    private val _searchText = mutableStateOf("")
+    val searchText: State<String> = _searchText
 
     private val _gamesSearched = MutableStateFlow<List<GameItem>>(emptyList())
     val gamesSearched = _gamesSearched
 
-//    init {
-//        fetchGamesBySearch(search = "")
-//    }
+    fun setSearchText(text: String) {
+        _searchText.value = text
+    }
 
     fun fetchGamesBySearch(search: String,  callback: (Boolean) -> Unit) {
         viewModelScope.launch {
