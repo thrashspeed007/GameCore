@@ -5,13 +5,13 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.thrashspeed.gamecore.DependencyContainer
 import com.thrashspeed.gamecore.data.access.local.repositories.GameRepository
 import com.thrashspeed.gamecore.data.model.GameEntity
 import com.thrashspeed.gamecore.data.model.GameStatus
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-class GamesTrackerViewModel @Inject constructor(private val gameRepository: GameRepository) : ViewModel() {
+class GamesTrackerViewModel (private val gameRepository: GameRepository = DependencyContainer.gamesRepository) : ViewModel() {
     private val _selectedTabIndex = mutableIntStateOf(0)
     val selectedTabIndex: State<Int> = _selectedTabIndex
 

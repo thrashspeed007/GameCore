@@ -102,8 +102,6 @@ class GamesAccess {
         })
     }
 
-    // TODO
-    // HACER CON IDGBQUERY EN VEZ DEL STRING ESE CUTRE
     fun getFamousGames(callback: (List<GameItem>) -> Unit) {
         val famousGamesQuery =
             IgdbQuery()

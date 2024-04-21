@@ -8,25 +8,25 @@ import com.thrashspeed.gamecore.data.access.local.dao.GameDao
 import com.thrashspeed.gamecore.data.model.GameEntity
 
 @Database(entities = [GameEntity::class], version = 1, exportSchema = false)
-abstract class GameDatabase : RoomDatabase() {
+abstract class GameCoreDatabase : RoomDatabase() {
 
     abstract fun gameDao(): GameDao
 
     companion object {
         @Volatile
-        private var instance: GameDatabase? = null
+        private var instance: GameCoreDatabase? = null
 
-        fun getInstance(context: Context): GameDatabase {
+        fun getInstance(context: Context): GameCoreDatabase {
             return instance ?: synchronized(this) {
                 instance ?: buildDatabase(context).also { instance = it }
             }
         }
 
-        private fun buildDatabase(context: Context): GameDatabase {
+        private fun buildDatabase(context: Context): GameCoreDatabase {
             return Room.databaseBuilder(
                 context.applicationContext,
-                GameDatabase::class.java,
-                "game_database"
+                GameCoreDatabase::class.java,
+                "game_core_database"
             ).build()
         }
     }

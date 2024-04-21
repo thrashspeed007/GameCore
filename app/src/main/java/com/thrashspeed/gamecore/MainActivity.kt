@@ -13,6 +13,7 @@ class MainActivity : ComponentActivity(), AuthCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        DependencyContainer.provide(this)
         setContent {
             GameCoreTheme {
                 if (session()) {

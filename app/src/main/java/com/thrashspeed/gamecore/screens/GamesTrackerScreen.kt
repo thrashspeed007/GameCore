@@ -1,9 +1,7 @@
 package com.thrashspeed.gamecore.screens
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Button
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
@@ -14,17 +12,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.thrashspeed.gamecore.R
 import com.thrashspeed.gamecore.screens.viewmodels.GamesTrackerViewModel
 
 @Composable
-fun GamesTrackerScreen(navController: NavController) {
-    val viewModel: GamesTrackerViewModel = viewModel()
+fun GamesTrackerScreen(navController: NavController, viewModel: GamesTrackerViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
     val selectedTabIndex = viewModel.selectedTabIndex.value
     GamesTrackerBodyContent(navController, viewModel, selectedTabIndex)
 }

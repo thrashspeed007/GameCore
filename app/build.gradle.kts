@@ -3,7 +3,6 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("com.google.gms.google-services")
     kotlin("kapt")
-    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -80,10 +79,7 @@ dependencies {
     // Room dependencies
     implementation ("androidx.room:room-runtime:2.6.1")
     implementation ("androidx.room:room-ktx:2.6.1") // Kotlin extensions
-
-    // Dagger Hilt
-    implementation ("com.google.dagger:hilt-android:2.51.1")
-    kapt("com.google.dagger:hilt-android-compiler:2.51.1")
+    kapt("androidx.room:room-compiler:2.6.1")
 
     // Gson (Retrofit version)
     // https://github.com/google/gson

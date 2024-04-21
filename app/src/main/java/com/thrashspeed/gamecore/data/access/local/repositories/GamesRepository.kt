@@ -6,9 +6,8 @@ import com.thrashspeed.gamecore.data.model.GameEntity
 import com.thrashspeed.gamecore.data.model.GameStatus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
-class GameRepository @Inject constructor(private val gameDao: GameDao) {
+class GameRepository(private val gameDao: GameDao) {
 
     fun getAllGames(): LiveData<List<GameEntity>> {
         return gameDao.getAllGames()
