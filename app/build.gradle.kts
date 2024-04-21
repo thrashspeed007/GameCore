@@ -2,6 +2,8 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.gms.google-services")
+    kotlin("kapt")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -52,11 +54,11 @@ android {
 
 dependencies {
 
-    implementation("androidx.core:core-ktx:1.12.0")
+    implementation("androidx.core:core-ktx:1.13.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
-    implementation ("androidx.compose.material:material-icons-extended:1.6.4")
+    implementation ("androidx.compose.material:material-icons-extended:1.6.6")
     implementation ("androidx.constraintlayout:constraintlayout-compose:1.0.1")
-    implementation("androidx.activity:activity-compose:1.8.2")
+    implementation("androidx.activity:activity-compose:1.9.0")
     implementation("androidx.navigation:navigation-compose:2.7.7")
     implementation(platform("androidx.compose:compose-bom:2023.08.00"))
     implementation("androidx.compose.ui:ui")
@@ -74,6 +76,14 @@ dependencies {
     // Retrofit
     // https://square.github.io/retrofit/
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
+
+    // Room dependencies
+    implementation ("androidx.room:room-runtime:2.6.1")
+    implementation ("androidx.room:room-ktx:2.6.1") // Kotlin extensions
+
+    // Dagger Hilt
+    implementation ("com.google.dagger:hilt-android:2.51.1")
+    kapt("com.google.dagger:hilt-android-compiler:2.51.1")
 
     // Gson (Retrofit version)
     // https://github.com/google/gson
@@ -93,11 +103,15 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
 
     // Firebase Authentication with Play Services
-    implementation("com.google.android.gms:play-services-auth:21.0.0")
+    implementation("com.google.android.gms:play-services-auth:21.1.0")
 
     // Firebase Firestore
     implementation("com.google.firebase:firebase-firestore-ktx")
 
     //Firebase Storage
     implementation("com.google.firebase:firebase-storage-ktx:20.3.0")
+}
+
+kapt {
+    correctErrorTypes = true
 }

@@ -1,4 +1,4 @@
-package com.thrashspeed.gamecore.data.access
+package com.thrashspeed.gamecore.data.access.igdb
 
 import android.util.Log
 import com.thrashspeed.gamecore.data.model.GameDetailed

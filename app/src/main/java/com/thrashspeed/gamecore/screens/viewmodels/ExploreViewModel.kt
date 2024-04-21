@@ -4,8 +4,8 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.thrashspeed.gamecore.data.access.GamesAccess
-import com.thrashspeed.gamecore.data.access.PlatformsAccess
+import com.thrashspeed.gamecore.data.access.igdb.GamesAccess
+import com.thrashspeed.gamecore.data.access.igdb.PlatformsAccess
 import com.thrashspeed.gamecore.data.model.GameItem
 import com.thrashspeed.gamecore.data.model.PlatformItem
 import com.thrashspeed.gamecore.utils.igdb.IgdbSortOptions

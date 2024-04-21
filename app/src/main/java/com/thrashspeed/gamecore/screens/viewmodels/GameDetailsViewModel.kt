@@ -2,7 +2,7 @@ package com.thrashspeed.gamecore.screens.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.thrashspeed.gamecore.data.access.GamesAccess
+import com.thrashspeed.gamecore.data.access.igdb.GamesAccess
 import com.thrashspeed.gamecore.data.model.GameDetailed
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch

@@ -14,8 +14,8 @@
     <string name="googleLogInBtnText">CONTINUAR CON GOOGLE</string>
 
 <!--    Explore screen -->
-    <string name="exploreTabs_games">VIDEOJUEGOS</string>
-    <string name="exploreTabs_platforms">PLATAFORMAS</string>
+    <string name="exploreTabs_games">VIDEOGAMES</string>
+    <string name="exploreTabs_platforms">PLATFORMS</string>
     <string name="explore_famousGames">Juegos populares</string>
     <string name="explore_trendingGames">Juegos en tendencia</string>
     <string name="explore_gamesCatalogue">Catálogo</string>
@@ -23,6 +23,10 @@
     <string name="explore_sortByBestRated">Mejor valorados</string>
     <string name="explore_sortByMostPlayed">Más jugados</string>
     <string name="explore_applyFilter">APLICAR FILTROS</string>
+    
+<!--    Games Tracker screen -->
+    <string name="gamesTrackerTabs_lists">LISTS</string>
+    <string name="gamesTrackerTabs_stats">STATS</string>
 
 <!--    Bottom nav bar -->
     <string name="bottonNavBar_explore">Explore</string>
