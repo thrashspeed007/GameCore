@@ -27,6 +27,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -39,8 +40,43 @@ import com.thrashspeed.gamecore.screens.SearchGamesScreen
 
 @Composable
 fun AppNavigation() {
-    val navController = rememberNavController()
+    val topLevelNavController = rememberNavController()
+    val homeNavController = rememberNavController()
 
+    NavHost(
+        navController = topLevelNavController,
+        startDestination = AppScreens.HomeNavigation.route
+    ) {
+        composable(
+            route = AppScreens.HomeNavigation.route,
+            enterTransition = { scaleIn(tween(200, 200)) },
+            exitTransition = { scaleOut(tween(200)) }
+        ) {
+            HomeNavigation(
+                topLevelNavController = topLevelNavController,
+                navController = homeNavController
+            )
+        }
+        composable(
+            route ="${AppScreens.GameDetailsScreen.route}/{gameId}",
+            enterTransition = { slideInHorizontally(
+                initialOffsetX = { it },
+                animationSpec = tween(300)
+            ) },
+            exitTransition = { slideOutHorizontally(
+                targetOffsetX = { it },
+                animationSpec = tween(300)
+            ) }
+        ) {
+            val gameId = it.arguments?.getString("gameId")
+
+            GameDetailsScreen(navController = topLevelNavController, gameId = gameId?.toInt() ?: -1)
+        }
+    }
+}
+
+@Composable
+fun HomeNavigation(topLevelNavController: NavHostController, navController: NavHostController) {
     Scaffold (
         topBar = { TopBar(navController)},
         bottomBar = { BottomBar(navController) }
@@ -56,7 +92,7 @@ fun AppNavigation() {
                 enterTransition = { scaleIn(tween(200, 200)) },
                 exitTransition = { scaleOut(tween(200)) }
             ) {
-                ExploreScreen(navController)
+                ExploreScreen(topLevelNavController, navController)
             }
             composable(
                 route = AppScreens.GamesTrackerScreen.route,
@@ -70,22 +106,7 @@ fun AppNavigation() {
                 enterTransition = { scaleIn(tween(200, 200)) },
                 exitTransition = { scaleOut(tween(200)) }
             ) {
-                SearchGamesScreen(navController)
-            }
-            composable(
-                route ="${AppScreens.GameDetailsScreen.route}/{gameId}",
-                enterTransition = { slideInHorizontally(
-                    initialOffsetX = { it },
-                    animationSpec = tween(300)
-                ) },
-                exitTransition = { slideOutHorizontally(
-                    targetOffsetX = { it },
-                    animationSpec = tween(300)
-                ) }
-            ) {
-                val gameId = it.arguments?.getString("gameId")
-
-                GameDetailsScreen(navController = navController, gameId = gameId?.toInt() ?: -1)
+                SearchGamesScreen(topLevelNavController, navController)
             }
         }
     }
@@ -131,7 +152,7 @@ fun BottomBar(navController: NavController) {
         listOfNavItems.forEach { navItem ->
             NavigationBarItem(
                 selected = currentRoute == navItem.route,
-                enabled = !isGameDetailsScreen(currentRoute),
+//                enabled = !isGameDetailsScreen(currentRoute),
                 onClick = {
                     if (currentRoute != navItem.route) {
                         navController.navigate(navItem.route) {

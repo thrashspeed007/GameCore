@@ -2,6 +2,8 @@ package com.thrashspeed.gamecore.screens
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
@@ -9,6 +11,7 @@ import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -66,5 +69,11 @@ fun GamesTrackerBodyContent(navController: NavController, viewModel: GamesTracke
 
 @Composable
 fun GamesSaved(navController: NavController, viewModel: GamesTrackerViewModel) {
-    Text(text = "hola")
+    val gamesState = viewModel.allGames.observeAsState(initial = emptyList())
+
+    LazyColumn {
+        items(items = gamesState.value) { game ->
+            Text(text = game.title)
+        }
+    }
 }

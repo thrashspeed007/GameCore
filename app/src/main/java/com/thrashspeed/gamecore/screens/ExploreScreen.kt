@@ -51,6 +51,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -60,12 +61,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.thrashspeed.gamecore.R
 import com.thrashspeed.gamecore.data.model.GameItem
@@ -77,18 +76,19 @@ import com.thrashspeed.gamecore.utils.igdb.IgdbData
 import com.thrashspeed.gamecore.utils.igdb.IgdbHelperMethods
 import com.thrashspeed.gamecore.utils.igdb.IgdbImageSizes
 import com.thrashspeed.gamecore.utils.igdb.IgdbSortOptions
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
 @Composable
-fun ExploreScreen(navController: NavController, viewModel: ExploreViewModel = viewModel()) {
+fun ExploreScreen(topLevelNavController: NavController, navController: NavController, viewModel: ExploreViewModel = viewModel()) {
     val selectedTabIndex = viewModel.selectedTabIndex.value
-    ExploreScreenBodyContent(navController = navController, viewModel = viewModel, initialTabIndex = selectedTabIndex)
+    ExploreScreenBodyContent(topLevelNavController = topLevelNavController, navController = navController, viewModel = viewModel, initialTabIndex = selectedTabIndex)
 }
 
 @Composable
-fun ExploreScreenBodyContent(navController: NavController, viewModel: ExploreViewModel, initialTabIndex: Int) {
+fun ExploreScreenBodyContent(topLevelNavController: NavController, navController: NavController, viewModel: ExploreViewModel, initialTabIndex: Int) {
     var selectedTabIndex by remember { mutableIntStateOf(initialTabIndex) }
     val horizontalListScrollState = rememberLazyListState()
     val verticalListScrollState = rememberLazyListState()
@@ -123,7 +123,7 @@ fun ExploreScreenBodyContent(navController: NavController, viewModel: ExploreVie
         Column (
         ) {
             when (selectedTabIndex) {
-                0 -> GamesExploreContent(navController, viewModel, horizontalListScrollState, verticalListScrollState)
+                0 -> GamesExploreContent(topLevelNavController = topLevelNavController, navController = navController, viewModel = viewModel, horizontalListScrollState, verticalListScrollState)
                 1 -> PlatformsExploreContent(viewModel = viewModel, scrollState = gridListScrollState)
             }
         }
@@ -131,7 +131,7 @@ fun ExploreScreenBodyContent(navController: NavController, viewModel: ExploreVie
 }
 
 @Composable
-fun GamesExploreContent(navController: NavController, viewModel: ExploreViewModel, horizontalListScrollState: LazyListState, verticalListScrollState: LazyListState) {
+fun GamesExploreContent(topLevelNavController: NavController, navController: NavController, viewModel: ExploreViewModel, horizontalListScrollState: LazyListState, verticalListScrollState: LazyListState) {
     val trendingGamesState by remember(viewModel) { viewModel.trendingGames }.collectAsState()
     val filteredGamesState by remember(viewModel) { viewModel.filteredGames }.collectAsState()
 
@@ -147,7 +147,7 @@ fun GamesExploreContent(navController: NavController, viewModel: ExploreViewMode
 //
 //        GamesHorizontalList(games = trendingGamesState, scrollState = horizontalListScrollState)
 //        Spacer(modifier = Modifier.height(8.dp))
-        GamesVerticalList(navController = navController, viewModel = viewModel, games = filteredGamesState, scrollState = verticalListScrollState)
+        GamesVerticalList(topLevelNavController = topLevelNavController, viewModel = viewModel, games = filteredGamesState, scrollState = verticalListScrollState)
     }
 }
 
@@ -167,6 +167,7 @@ fun PlatformsExploreContent(viewModel: ExploreViewModel, scrollState: LazyListSt
 @Composable
 fun GenresBottomSheet(viewModel: ExploreViewModel, genresToApply: SnapshotStateList<Int>, sortOption: MutableState<IgdbSortOptions>, isLoading: MutableState<Boolean>, onDismiss: () -> Unit) {
     val modalBottomSheetState = rememberModalBottomSheetState()
+    val coroutineScope = rememberCoroutineScope()
 
     ModalBottomSheet(
         onDismissRequest = { onDismiss() },
@@ -181,11 +182,14 @@ fun GenresBottomSheet(viewModel: ExploreViewModel, genresToApply: SnapshotStateL
                     .fillMaxWidth()
                     .padding(start = 12.dp, end = 12.dp, bottom = 12.dp),
                 onClick = {
-                    isLoading.value = true
-                    viewModel.updateGamesInList(genresToApply, sortOption.value) { success ->
-                        if (success) isLoading.value = false
+                    coroutineScope.launch {
+                        isLoading.value = true
+                        viewModel.updateGamesInList(genresToApply, sortOption.value) { success ->
+                            if (success) isLoading.value = false
+                        }
+                        modalBottomSheetState.hide()
+                        onDismiss()
                     }
-                    onDismiss()
                 }
             ) {
                 Text(text = LocalContext.current.getString(R.string.explore_applyFilter))
@@ -252,7 +256,7 @@ fun GenreLabel(
 
 @Composable
 fun GamesVerticalList(
-    navController: NavController,
+    topLevelNavController: NavController,
     viewModel: ExploreViewModel,
     games: List<GameItem>,
     scrollState: LazyListState
@@ -322,7 +326,7 @@ fun GamesVerticalList(
             ) {
                 itemsIndexed(games) { index, game ->
                     GameListItem(index = index, game = game) { gameClickedId ->
-                        navController.navigate("${AppScreens.GameDetailsScreen.route}/$gameClickedId")
+                        topLevelNavController.navigate("${AppScreens.GameDetailsScreen.route}/$gameClickedId")
                     }
                 }
             }
@@ -475,8 +479,8 @@ fun GameBigListItem(gameItem: GameItem) {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun ExploreScreenBodyContentPreview() {
-    ExploreScreenBodyContent(navController = rememberNavController(), viewModel(), 0)
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun ExploreScreenBodyContentPreview() {
+//    ExploreScreenBodyContent(navController = rememberNavController(), viewModel(), 0)
+//}

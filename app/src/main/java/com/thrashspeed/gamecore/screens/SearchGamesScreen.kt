@@ -33,13 +33,13 @@ import com.thrashspeed.gamecore.screens.viewmodels.SearchGamesViewModel
 import com.thrashspeed.gamecore.utils.composables.LoadingIndicator
 
 @Composable
-fun SearchGamesScreen(navController: NavController, viewModel: SearchGamesViewModel = viewModel()) {
-    SearchGamesScreenBodyContent(navController = navController, viewModel = viewModel)
+fun SearchGamesScreen(topLevelNavController: NavController, navController: NavController, viewModel: SearchGamesViewModel = viewModel()) {
+    SearchGamesScreenBodyContent(topLevelNavController = topLevelNavController, navController = navController, viewModel = viewModel)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchGamesScreenBodyContent(navController: NavController, viewModel: SearchGamesViewModel) {
+fun SearchGamesScreenBodyContent(topLevelNavController: NavController, navController: NavController, viewModel: SearchGamesViewModel) {
     val searchText = viewModel.searchText.value
     var searchTextState by remember { mutableStateOf(searchText) }
     val searchedGamesState by remember(viewModel) { viewModel.gamesSearched }.collectAsState()
@@ -107,9 +107,7 @@ fun SearchGamesScreenBodyContent(navController: NavController, viewModel: Search
                 ) {
                     itemsIndexed(searchedGamesState) { index, game ->
                         GameListItem(index = index, game = game) { gameClickedId ->
-                            navController.navigate("${AppScreens.GameDetailsScreen.route}/$gameClickedId") {
-
-                            }
+                            topLevelNavController.navigate("${AppScreens.GameDetailsScreen.route}/$gameClickedId")
                         }
                     }
                 }

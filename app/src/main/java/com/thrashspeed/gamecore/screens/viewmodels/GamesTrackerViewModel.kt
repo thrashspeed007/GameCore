@@ -14,13 +14,11 @@ import kotlinx.coroutines.launch
 class GamesTrackerViewModel (private val gameRepository: GameRepository = DependencyContainer.gamesRepository) : ViewModel() {
     private val _selectedTabIndex = mutableIntStateOf(0)
     val selectedTabIndex: State<Int> = _selectedTabIndex
+    val allGames: LiveData<List<GameEntity>> = gameRepository.getAllGames()
 
     fun setSelectedTabIndex(index: Int) {
         _selectedTabIndex.intValue = index
     }
-
-
-    val allGames: LiveData<List<GameEntity>> = gameRepository.getAllGames()
 
     fun getGamesByStatus(status: GameStatus): LiveData<List<GameEntity>> {
         return gameRepository.getGamesByStatus(status)
