@@ -335,7 +335,7 @@ fun GamesVerticalList(
 }
 
 @Composable
-fun GameListItem(index: Int, game: GameItem, onItemClick: (Int) -> Unit) {
+fun GameListItem(index: Int, game: GameItem, onItemClick: (Long) -> Unit) {
     Row (
         modifier = Modifier
             .fillMaxWidth()
@@ -373,7 +373,7 @@ fun GameListItem(index: Int, game: GameItem, onItemClick: (Int) -> Unit) {
 }
 
 // TODO
-// GUARDAR OPCIÓN SELECCIONADA DEL DROPDOWN CUANDO SE VUELVE A LA PANTALLA TRAS NAVEGAR
+// GUARDAR OPCIÓN SELECCIONADA DEL DROPDOWN CUANDO SE VUELVE A LA PANTALLA TRAS NAVEGAR, nah...
 @Composable
 fun SortByDropDownMenu(viewModel: ExploreViewModel, genresToApply: SnapshotStateList<Int>, sortOption: MutableState<IgdbSortOptions>, showDropdown: Boolean, dropdownTitle: MutableState<String>, isLoading: MutableState<Boolean>, onDismiss: () -> Unit ) {
     val context = LocalContext.current

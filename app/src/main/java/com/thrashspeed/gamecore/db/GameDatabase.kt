@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import com.thrashspeed.gamecore.data.access.local.dao.GameDao
 import com.thrashspeed.gamecore.data.model.GameEntity
 
-@Database(entities = [GameEntity::class], version = 1, exportSchema = false)
+@Database(entities = [GameEntity::class], version = 2, exportSchema = false)
 abstract class GameCoreDatabase : RoomDatabase() {
 
     abstract fun gameDao(): GameDao

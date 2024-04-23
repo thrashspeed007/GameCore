@@ -48,6 +48,7 @@ data class Game(
 )
 
 data class GameDetailed(
+    val id: Long,
     val name: String,
     val summary: String,
     val first_release_date: Long,
@@ -58,7 +59,7 @@ data class GameDetailed(
 )
 
 data class GameItem(
-    val id: Int,
+    val id: Long,
     val name: String,
     val cover: GameCover,
     val first_release_date: Long

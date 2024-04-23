@@ -1,5 +1,7 @@
 package com.thrashspeed.gamecore.utils.composables
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
@@ -15,4 +17,9 @@ fun LoadingIndicator() {
     ) {
         CircularProgressIndicator()
     }
+}
+
+@Composable
+fun ShowToast(context: Context, message: String, length: Int = 0) {
+    Toast.makeText(context, message, length).show()
 }

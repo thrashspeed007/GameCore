@@ -99,7 +99,7 @@ fun HomeNavigation(topLevelNavController: NavHostController, navController: NavH
                 enterTransition = { scaleIn(tween(200, 200)) },
                 exitTransition = { scaleOut(tween(200)) }
             ) {
-                GamesTrackerScreen(navController)
+                GamesTrackerScreen(topLevelNavController, navController)
             }
             composable(
                 route = AppScreens.SearchGamesScreen.route,
