@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
@@ -43,7 +42,6 @@ fun SearchGamesScreenBodyContent(topLevelNavController: NavController, navContro
     val searchText = viewModel.searchText.value
     var searchTextState by remember { mutableStateOf(searchText) }
     val searchedGamesState by remember(viewModel) { viewModel.gamesSearched }.collectAsState()
-    val verticalListScrollState = rememberLazyListState()
     var loading by remember { mutableStateOf(false) }
     var noResultsMessage by remember { mutableStateOf("") }
 
@@ -63,11 +61,13 @@ fun SearchGamesScreenBodyContent(topLevelNavController: NavController, navContro
                 viewModel.setSearchText(it)
             },
             onSearch = {
-                loading = true
-                keyboardController?.hide()
-                viewModel.fetchGamesBySearch(searchText) { result ->
-                    loading = false
-                    noResultsMessage = if (!result) "No results for \"$searchText\"" else ""
+                if (searchText.isNotEmpty()) {
+                    loading = true
+                    keyboardController?.hide()
+                    viewModel.fetchGamesBySearch(searchText) { result ->
+                        loading = false
+                        noResultsMessage = if (!result) "No results for \"$searchText\"" else ""
+                    }
                 }
             },
             active = false,
@@ -78,8 +78,8 @@ fun SearchGamesScreenBodyContent(topLevelNavController: NavController, navContro
                 )
             },
             trailingIcon = {
-                if (searchText.isNotEmpty()) {
-                    IconButton(onClick = { searchTextState = "" }) {
+                if (searchTextState.isNotEmpty()) {
+                    IconButton(onClick = { searchTextState = ""; viewModel.setSearchText("") }) {
                         Icon(imageVector = Icons.Default.Clear, contentDescription = "Clear icon")
                     }
                 }
@@ -103,7 +103,6 @@ fun SearchGamesScreenBodyContent(topLevelNavController: NavController, navContro
                 )
             } else {
                 LazyColumn(
-                    state = verticalListScrollState
                 ) {
                     itemsIndexed(searchedGamesState) { index, game ->
                         GameListItem(index = index, game = game) { gameClickedId ->

@@ -24,10 +24,9 @@ class GamesAccess {
             IgdbQuery()
                 .addFields(listOf("name", "cover.image_id", "first_release_date"))
                 .addSearch(search)
-                .addWhereClause("total_rating_count > 30")
+                .addWhereClause("total_rating_count > 20")
                 .addLimit(30)
                 .buildQuery()
-        Log.d("busca", searchGamesQuery)
 
         val call = RetrofitService.tmdbApi.getGames(createTextRequestBody(searchGamesQuery))
 

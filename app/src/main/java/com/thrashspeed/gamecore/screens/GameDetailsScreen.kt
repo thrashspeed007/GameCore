@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -16,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -178,12 +178,18 @@ fun AddToTagBottomSheet(
         dragHandle = { BottomSheetDefaults.DragHandle() },
     ) {
         Column (
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.navigationBarsPadding(),
         ) {
+            ToggleButtonGroup(
+                options = tagOptions,
+                selectedOption = GameStatus.TO_PLAY,
+                onOptionSelected = {
+                    selectedStatus = it
+                }
+            )
+            Spacer(modifier = Modifier.height(8.dp))
             Button(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 12.dp, end = 12.dp, bottom = 12.dp),
                 onClick = {
                     // TODO
                     // AÑADIR A FIRESTORE
@@ -195,15 +201,14 @@ fun AddToTagBottomSheet(
                     Toast.makeText(context, "Game added!", Toast.LENGTH_SHORT).show()
                 }
             ) {
-                Text(text = "Add")
-            }
-            ToggleButtonGroup(
-                options = tagOptions,
-                selectedOption = GameStatus.TO_PLAY,
-                onOptionSelected = {
-                    selectedStatus = it
+                Row (
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(imageVector = Icons.Default.Check, contentDescription = "Ok button")
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(text = "OK")
                 }
-            )
+            }
         }
     }
 }
