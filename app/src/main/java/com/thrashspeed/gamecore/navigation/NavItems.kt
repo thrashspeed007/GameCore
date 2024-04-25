@@ -34,6 +34,6 @@ val listOfNavItems : List<NavItem> = listOf(
     NavItem(
         R.string.bottonNavBar_myGames,
         Icons.Default.Games,
-        AppScreens.GamesTrackerScreen.route
+        AppScreens.MyGamesScreen.route
     )
 )

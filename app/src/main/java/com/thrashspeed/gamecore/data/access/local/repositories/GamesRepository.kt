@@ -7,7 +7,7 @@ import com.thrashspeed.gamecore.data.model.GameStatus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class GameRepository(private val gameDao: GameDao) {
+class GamesRepository(private val gameDao: GameDao) {
 
     fun getAllGames(): LiveData<List<GameEntity>> {
         return gameDao.getAllGames()

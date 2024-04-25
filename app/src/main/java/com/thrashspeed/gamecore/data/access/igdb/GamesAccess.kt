@@ -24,7 +24,7 @@ class GamesAccess {
             IgdbQuery()
                 .addFields(listOf("name", "cover.image_id", "first_release_date"))
                 .addSearch(search)
-                .addWhereClause("total_rating_count > 20")
+                .addWhereClause("total_rating_count > 10")
                 .addLimit(30)
                 .buildQuery()
 

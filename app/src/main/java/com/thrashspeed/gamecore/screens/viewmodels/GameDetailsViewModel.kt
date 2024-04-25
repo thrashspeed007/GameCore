@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.thrashspeed.gamecore.DependencyContainer
 import com.thrashspeed.gamecore.data.access.igdb.GamesAccess
-import com.thrashspeed.gamecore.data.access.local.repositories.GameRepository
+import com.thrashspeed.gamecore.data.access.local.repositories.GamesRepository
 import com.thrashspeed.gamecore.data.model.GameDetailed
 import com.thrashspeed.gamecore.data.model.GameEntity
 import com.thrashspeed.gamecore.data.model.GameStatus
@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 
 class GameDetailsViewModel(gameId: Int) : ViewModel() {
     private val gamesAccess = GamesAccess()
-    private val gameRepository: GameRepository = DependencyContainer.gamesRepository
+    private val gamesRepository: GamesRepository = DependencyContainer.gamesRepository
 
     private val _gameDetails = MutableStateFlow<List<GameDetailed>>(emptyList())
     val gameDetails = _gameDetails
@@ -41,7 +41,7 @@ class GameDetailsViewModel(gameId: Int) : ViewModel() {
         )
 
         viewModelScope.launch {
-            gameRepository.insertGame(gameEntity)
+            gamesRepository.insertGame(gameEntity)
         }
     }
 }

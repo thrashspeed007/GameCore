@@ -35,7 +35,7 @@ import androidx.navigation.compose.rememberNavController
 import com.thrashspeed.gamecore.R
 import com.thrashspeed.gamecore.screens.ExploreScreen
 import com.thrashspeed.gamecore.screens.GameDetailsScreen
-import com.thrashspeed.gamecore.screens.GamesTrackerScreen
+import com.thrashspeed.gamecore.screens.MyGamesScreen
 import com.thrashspeed.gamecore.screens.SearchGamesScreen
 
 @Composable
@@ -83,7 +83,7 @@ fun HomeNavigation(topLevelNavController: NavHostController, navController: NavH
     ) { paddingValues ->
         NavHost (
             navController = navController,
-            startDestination = AppScreens.ExploreScreen.route,
+            startDestination = AppScreens.MyGamesScreen.route,
             modifier = Modifier
                 .padding(paddingValues)
         ) {
@@ -95,11 +95,11 @@ fun HomeNavigation(topLevelNavController: NavHostController, navController: NavH
                 ExploreScreen(topLevelNavController, navController)
             }
             composable(
-                route = AppScreens.GamesTrackerScreen.route,
+                route = AppScreens.MyGamesScreen.route,
                 enterTransition = { scaleIn(tween(200, 200)) },
                 exitTransition = { scaleOut(tween(200)) }
             ) {
-                GamesTrackerScreen(topLevelNavController, navController)
+                MyGamesScreen(topLevelNavController, navController)
             }
             composable(
                 route = AppScreens.SearchGamesScreen.route,

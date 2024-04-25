@@ -1,7 +1,8 @@
 package com.thrashspeed.gamecore
 
 import android.content.Context
-import com.thrashspeed.gamecore.data.access.local.repositories.GameRepository
+import com.thrashspeed.gamecore.data.access.local.repositories.GamesRepository
+import com.thrashspeed.gamecore.data.access.local.repositories.ListsRepository
 import com.thrashspeed.gamecore.db.GameCoreDatabase
 
 object DependencyContainer {
@@ -9,8 +10,14 @@ object DependencyContainer {
         private set
 
     val gamesRepository by lazy {
-        GameRepository(
+        GamesRepository(
             gameDao = db.gameDao()
+        )
+    }
+
+    val listsRepository by lazy {
+        ListsRepository(
+            listDao = db.listDao()
         )
     }
 

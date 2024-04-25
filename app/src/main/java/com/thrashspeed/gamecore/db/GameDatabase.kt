@@ -5,12 +5,15 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.thrashspeed.gamecore.data.access.local.dao.GameDao
+import com.thrashspeed.gamecore.data.access.local.dao.ListDao
 import com.thrashspeed.gamecore.data.model.GameEntity
+import com.thrashspeed.gamecore.data.model.ListEntity
 
-@Database(entities = [GameEntity::class], version = 2, exportSchema = false)
+@Database(entities = [GameEntity::class, ListEntity::class], version = 1, exportSchema = false)
 abstract class GameCoreDatabase : RoomDatabase() {
 
     abstract fun gameDao(): GameDao
+    abstract fun listDao(): ListDao
 
     companion object {
         @Volatile

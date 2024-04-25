@@ -15,9 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.NextPlan
 import androidx.compose.material.icons.filled.Castle
@@ -32,15 +30,10 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
-import androidx.compose.material3.TabRowDefaults
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -50,7 +43,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -65,54 +57,6 @@ import com.thrashspeed.gamecore.utils.igdb.IgdbImageSizes
 
 @Composable
 fun GamesTrackerScreen(topLevelNavController: NavController, navController: NavController, viewModel: GamesTrackerViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
-    val selectedTabIndex = viewModel.selectedTabIndex.value
-    GamesTrackerBodyContent(topLevelNavController, navController, viewModel, selectedTabIndex)
-}
-
-@Composable
-fun GamesTrackerBodyContent(topLevelNavController: NavController, navController: NavController, viewModel: GamesTrackerViewModel, initialTabIndex: Int) {
-    var selectedTabIndex by remember { mutableIntStateOf(initialTabIndex) }
-    val tabs = listOf(
-        LocalContext.current.getString(R.string.exploreTabs_games), LocalContext.current.getString(
-            R.string.gamesTrackerTabs_stats), LocalContext.current.getString(
-            R.string.gamesTrackerTabs_lists))
-
-    Column (
-        modifier = Modifier.fillMaxSize()
-    ) {
-        TabRow(
-            selectedTabIndex = selectedTabIndex,
-            indicator = { tabPositions ->
-                TabRowDefaults.Indicator(
-                    Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex])
-                )
-            }
-        ) {
-            tabs.forEachIndexed { index, title ->
-                Tab(
-                    text = { Text(title) },
-                    selected = selectedTabIndex == index,
-                    onClick = {
-                        selectedTabIndex = index
-                        viewModel.setSelectedTabIndex(selectedTabIndex)
-                    }
-                )
-            }
-        }
-
-        Column (
-            modifier = Modifier.verticalScroll(rememberScrollState()) // Enable vertical scrolling
-
-        ) {
-            when (selectedTabIndex) {
-                0 -> GamesSaved(topLevelNavController = topLevelNavController, navController = navController, viewModel = viewModel)
-            }
-        }
-    }
-}
-
-@Composable
-fun GamesSaved(topLevelNavController: NavController, navController: NavController, viewModel: GamesTrackerViewModel) {
     val toPlayGames = viewModel.getGamesByStatus(GameStatus.TO_PLAY).observeAsState(initial = emptyList())
     val completedGames = viewModel.getGamesByStatus(GameStatus.COMPLETED).observeAsState(initial = emptyList())
     val playingGames = viewModel.getGamesByStatus(GameStatus.NOW_PLAYING).observeAsState(initial = emptyList())
