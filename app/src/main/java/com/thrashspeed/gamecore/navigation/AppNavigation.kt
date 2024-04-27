@@ -112,10 +112,6 @@ fun HomeNavigation(topLevelNavController: NavHostController, navController: NavH
     }
 }
 
-private fun isGameDetailsScreen(route: String?): Boolean {
-    return route?.startsWith("${AppScreens.GameDetailsScreen.route}/") == true
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(navController: NavController) {
@@ -152,7 +148,6 @@ fun BottomBar(navController: NavController) {
         listOfNavItems.forEach { navItem ->
             NavigationBarItem(
                 selected = currentRoute == navItem.route,
-//                enabled = !isGameDetailsScreen(currentRoute),
                 onClick = {
                     if (currentRoute != navItem.route) {
                         navController.navigate(navItem.route) {

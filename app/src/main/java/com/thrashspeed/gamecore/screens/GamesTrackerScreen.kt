@@ -15,7 +15,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.NextPlan
 import androidx.compose.material.icons.filled.Castle
@@ -61,7 +63,9 @@ fun GamesTrackerScreen(topLevelNavController: NavController, navController: NavC
     val completedGames = viewModel.getGamesByStatus(GameStatus.COMPLETED).observeAsState(initial = emptyList())
     val playingGames = viewModel.getGamesByStatus(GameStatus.NOW_PLAYING).observeAsState(initial = emptyList())
 
-    Column {
+    Column (
+        modifier = Modifier.verticalScroll(rememberScrollState())
+    ) {
         GamesHorizontalList(title = "To Play", icon = Icons.AutoMirrored.Filled.NextPlan, iconColor = MaterialTheme.colorScheme.secondary, games = toPlayGames.value, topLevelNavController = topLevelNavController, viewModel = viewModel)
         GamesHorizontalList(title = "Playing", icon = Icons.Default.VideogameAsset, iconColor = MaterialTheme.colorScheme.primary, games = playingGames.value, topLevelNavController = topLevelNavController, viewModel = viewModel)
         GamesHorizontalList(title = "Completed", icon = Icons.Default.Verified, iconColor = MaterialTheme.colorScheme.tertiary, games = completedGames.value, topLevelNavController = topLevelNavController, viewModel = viewModel)

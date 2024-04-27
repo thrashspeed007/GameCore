@@ -1,9 +1,10 @@
 package com.thrashspeed.gamecore.screens
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
@@ -17,7 +18,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.thrashspeed.gamecore.R
+import com.thrashspeed.gamecore.navigation.AppScreens
 import com.thrashspeed.gamecore.screens.viewmodels.MyGamesViewModel
 
 @Composable
@@ -28,6 +34,7 @@ fun MyGamesScreen(topLevelNavController: NavController, navController: NavContro
 
 @Composable
 fun MyGamesBodyContent(topLevelNavController: NavController, navController: NavController, viewModel: MyGamesViewModel, initialTabIndex: Int) {
+    val tabsNavController = rememberNavController()
     var selectedTabIndex by remember { mutableIntStateOf(initialTabIndex) }
     val tabs = listOf(
         LocalContext.current.getString(R.string.exploreTabs_games), LocalContext.current.getString(
@@ -57,13 +64,53 @@ fun MyGamesBodyContent(topLevelNavController: NavController, navController: NavC
             }
         }
 
-        Column (
-            modifier = Modifier.verticalScroll(rememberScrollState()) // Enable vertical scrolling
-
+        NavHost(
+            navController = tabsNavController,
+            startDestination = AppScreens.GamesTrackerScreen.route
         ) {
-            when (selectedTabIndex) {
-                0 -> GamesTrackerScreen(topLevelNavController = topLevelNavController, navController = navController)
-                2 -> ListsScreen(topLevelNavController = topLevelNavController, navController = navController)
+            composable(
+                route = AppScreens.GamesTrackerScreen.route,
+                enterTransition = { scaleIn(tween(200, 200)) },
+                exitTransition = { scaleOut(tween(200)) }
+            ) {
+                GamesTrackerScreen(topLevelNavController = topLevelNavController, navController = navController)
+            }
+            composable(
+                route = AppScreens.StatsScreen.route,
+                enterTransition = { scaleIn(tween(200, 200)) },
+                exitTransition = { scaleOut(tween(200)) }
+            ) {
+                // TODO
+                // PONER PANTALLA DE STATS NO ESTA
+                GamesTrackerScreen(topLevelNavController = topLevelNavController, navController = navController)
+            }
+            composable(
+                route = AppScreens.ListsScreen.route,
+                enterTransition = { scaleIn(tween(200, 200)) },
+                exitTransition = { scaleOut(tween(200)) }
+            ) {
+                ListsScreen(topLevelNavController = topLevelNavController, navController = navController)
+            }
+        }
+
+        when (selectedTabIndex) {
+            0 -> {
+                tabsNavController.navigate(AppScreens.GamesTrackerScreen.route) {
+                    popUpTo(navController.graph.findStartDestination().id) {
+                        saveState = true
+                    }
+                    launchSingleTop = true
+                    restoreState = true
+                }
+            }
+            2 -> {
+                tabsNavController.navigate(AppScreens.ListsScreen.route) {
+                    popUpTo(navController.graph.findStartDestination().id) {
+                        saveState = true
+                    }
+                    launchSingleTop = true
+                    restoreState = true
+                }
             }
         }
     }
