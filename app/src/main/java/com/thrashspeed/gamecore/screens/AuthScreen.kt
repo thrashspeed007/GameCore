@@ -67,6 +67,7 @@ import com.thrashspeed.gamecore.R
 import com.thrashspeed.gamecore.config.FirebaseConectionData
 import com.thrashspeed.gamecore.firebase.FirebaseInstances
 import com.thrashspeed.gamecore.firebase.firestore.FirestoreUtilities
+import com.thrashspeed.gamecore.screens.viewmodels.AuthViewModel
 import com.thrashspeed.gamecore.utils.Fonts
 
 interface AuthCallback {
@@ -74,7 +75,7 @@ interface AuthCallback {
 }
 
 @Composable
-fun AuthScreen(authCallback: AuthCallback) {
+fun AuthScreen(authCallback: AuthCallback, viewModel: AuthViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
     val colorPrimary = MaterialTheme.colorScheme.primary
     val colorSecondayContainer = MaterialTheme.colorScheme.secondaryContainer
     val colorOnPrimary = MaterialTheme.colorScheme.onPrimary
@@ -105,24 +106,16 @@ fun AuthScreen(authCallback: AuthCallback) {
         ConstraintLayout(
             modifier = Modifier.fillMaxSize()
         ) {
-            val (languageButton, titleText, textFieldsContainer, changeActionModeButton, googleLogInButton) = createRefs()
+            val (titleText, textFieldsContainer, changeActionModeButton, googleLogInButton) = createRefs()
             var emailInput by remember { mutableStateOf("") }
             var fullnameInput by remember { mutableStateOf("") }
             var usernameInput by remember { mutableStateOf("") }
             var passwordInput by remember { mutableStateOf("") }
             var passwordConfirmationInput by remember { mutableStateOf("") }
 
-            LanguageButton(
-                modifier = Modifier.constrainAs(languageButton) {
-                    top.linkTo(parent.top, 32.dp)
-                    end.linkTo(parent.end)
-                    start.linkTo(parent.start)
-                }
-            )
-
             TitleText(
                 modifier = Modifier.constrainAs(titleText) {
-                    top.linkTo(languageButton.bottom, 32.dp)
+                    top.linkTo(parent.top, 70.dp)
                     end.linkTo(parent.end)
                     start.linkTo(parent.start)
                 }
@@ -188,6 +181,7 @@ fun AuthScreen(authCallback: AuthCallback) {
 
                 ActionButton(
                     context = LocalContext.current,
+                    viewModel = viewModel,
                     containerColor = textFieldsBoxColor,
                     contentColor = boxButtonContentColor,
                     isRegistering = isRegistering,
@@ -225,33 +219,34 @@ fun AuthScreen(authCallback: AuthCallback) {
                     end.linkTo(parent.end)
                     start.linkTo(parent.start)
                 },
-                authCallback = authCallback
+                authCallback = authCallback,
+                viewModel = viewModel
             )
         }
     }
 }
 
-@Composable
-fun LanguageButton(modifier: Modifier = Modifier) {
-    Button(
-        onClick = { /*TODO*/ },
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.background,
-            contentColor = MaterialTheme.colorScheme.onBackground
-        ),
-        border = BorderStroke(2.dp, MaterialTheme.colorScheme.onBackground),
-        modifier = modifier
-    ) {
-        Row (
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(imageVector = Icons.Default.Translate, contentDescription = "translateButton")
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(LocalContext.current.getString(R.string.languageBtnText))
-        }
-    }
-}
+//@Composable
+//fun GitHubButton(modifier: Modifier = Modifier) {
+//    Button(
+//        onClick = { /*TODO*/ },
+//        colors = ButtonDefaults.buttonColors(
+//            containerColor = MaterialTheme.colorScheme.background,
+//            contentColor = MaterialTheme.colorScheme.onBackground
+//        ),
+//        border = BorderStroke(2.dp, MaterialTheme.colorScheme.onBackground),
+//        modifier = modifier
+//    ) {
+//        Row (
+//            horizontalArrangement = Arrangement.Center,
+//            verticalAlignment = Alignment.CenterVertically
+//        ) {
+//            Icon(imageVector = Icons.Default.Translate, contentDescription = "translateButton")
+//            Spacer(modifier = Modifier.width(8.dp))
+//            Text(LocalContext.current.getString(R.string.languageBtnText))
+//        }
+//    }
+//}
 
 @Composable
 fun TitleText(modifier: Modifier = Modifier) {
@@ -388,13 +383,13 @@ fun PasswordTextField(
 }
 
 @Composable
-fun ActionButton(context: Context, modifier: Modifier = Modifier, containerColor: Color, contentColor: Color, isRegistering: Boolean, authCallback: AuthCallback, email: String, password: String, passwordConfirmation: String, username: String, fullName: String) {
+fun ActionButton(context: Context, viewModel: AuthViewModel, modifier: Modifier = Modifier, containerColor: Color, contentColor: Color, isRegistering: Boolean, authCallback: AuthCallback, email: String, password: String, passwordConfirmation: String, username: String, fullName: String) {
     Button(
         onClick = {
             if (isRegistering) {
-                signUp(context, authCallback, email, password, passwordConfirmation, username, fullName)
+                viewModel.signUp(context, authCallback, email, password, passwordConfirmation, username, fullName)
             } else {
-                loginUser(context, authCallback, username, password)
+                viewModel.loginUser(context, authCallback, username, password)
             }
         },
         colors = ButtonDefaults.buttonColors(
@@ -442,7 +437,7 @@ fun ChangeActionModeButton(onAction: () -> Unit, isRegistering: Boolean, modifie
 }
 
 @Composable
-fun GoogleLogInButton(modifier: Modifier = Modifier, authCallback: AuthCallback) {
+fun GoogleLogInButton(modifier: Modifier = Modifier, authCallback: AuthCallback, viewModel: AuthViewModel) {
     val context = LocalContext.current
     val googleSignInLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
@@ -450,7 +445,7 @@ fun GoogleLogInButton(modifier: Modifier = Modifier, authCallback: AuthCallback)
             try {
                 val account = task.getResult(ApiException::class.java)
                 if (account != null) {
-                    firebaseAuthWithGoogle(context, account.idToken!!, authCallback)
+                    viewModel.firebaseAuthWithGoogle(context, account.idToken!!, authCallback)
                 }
             } catch (e: ApiException) {
                 Log.d("GoogleSignIn", "signInGoogle:failure ${e.message}")
@@ -459,7 +454,7 @@ fun GoogleLogInButton(modifier: Modifier = Modifier, authCallback: AuthCallback)
     }
 
     Button(
-        onClick = { signInWithGoogle(context, googleSignInLauncher) },
+        onClick = { viewModel.signInWithGoogle(context, googleSignInLauncher) },
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.background,
             contentColor = MaterialTheme.colorScheme.onBackground
@@ -496,146 +491,4 @@ fun AuthScreenPreview() {
             // This is a fake implementation of the auth callback for the preview that does nothing
         }
     })
-}
-
-private fun signInWithGoogle(context: Context, googleSignInLauncher: ActivityResultLauncher<Intent>) {
-    val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-        .requestIdToken(FirebaseConectionData.GOOGLE_WEB_CLIENT_ID)
-        .requestEmail()
-        .build()
-
-    val googleSignInClient = GoogleSignIn.getClient(context, gso)
-    googleSignInClient.signOut()
-
-    val signInIntent = googleSignInClient.signInIntent
-    googleSignInLauncher.launch(signInIntent)
-}
-
-private fun signUp(context: Context, authCallback: AuthCallback, email: String, password: String, passwordConfirmation: String, username: String, fullname: String) {
-    if (email.isEmpty() || password.isEmpty() || username.isEmpty()) {
-        showAlert(context,"Rellena todos los campos porfavor.")
-        return
-    }
-    
-    if (password != passwordConfirmation) {
-        showAlert(context,"Las contraseñas no son iguales")
-        return
-    }
-
-    if (password.length > 6) {
-        showAlert(context, "La contraseña debe tener al menos 6 caracteres")
-        return
-    }
-
-    val usernames = FirebaseInstances.firestoreInstance.collection("usernames")
-
-    usernames.document(username)
-        .get().addOnSuccessListener { document ->
-            if(document.exists()){
-                showAlert(context, "El nombre de usuario introducido ya está en uso por otra cuenta")
-            } else {
-                FirebaseInstances.authInstance.createUserWithEmailAndPassword(
-                    email,
-                    password
-                ).addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        FirestoreUtilities.saveUserInFirestore(email, username, fullname) { success ->
-                            if (success) {
-                                saveUserInfo(context, email, username, fullname)
-                                authCallback.onAuthSuccess()
-                            } else {
-                                showAlert(context, "Error al guardar el usuario en la base de datos")
-                            }
-                        }
-                    } else {
-                        if (task.exception is FirebaseAuthUserCollisionException) {
-                            showAlert(context, "El email introducido ya está en uso por otra cuenta")
-                        } else {
-                            showAlert(context, task.exception.toString())
-                        }
-                    }
-                }
-            }
-        }
-}
-
-private fun loginUser(context: Context, authCallback: AuthCallback, username: String, password: String) {
-    val usernames = FirebaseInstances.firestoreInstance.collection("usernames")
-    val users = FirebaseInstances.firestoreInstance.collection("users")
-
-    usernames.document(username)
-        .get()
-        .addOnSuccessListener { document ->
-            if (document.exists()) {
-                val userEmail = document.getString("email").toString()
-
-                if (userEmail.isNotBlank()) {
-                    val auth = FirebaseInstances.authInstance
-                    auth.signInWithEmailAndPassword(userEmail, password)
-                        .addOnCompleteListener { task ->
-                            if (task.isSuccessful) {
-                                users.document(auth.currentUser?.uid ?: "")
-                                    .get()
-                                    .addOnSuccessListener { document ->
-                                        if (document.exists()) {
-                                            saveUserInfo(context, userEmail, username, document.getString("fullname").toString())
-                                            authCallback.onAuthSuccess()
-                                        }
-                                    }
-                            } else {
-                                handleAuthException(context, task.exception)
-                            }
-                        }
-                } else {
-                    showAlert(context , "Error al obtener el email del usuario.")
-                }
-            } else {
-                showAlert(context, "Nombre de usuario o contraseña incorrectos.")
-            }
-        }
-        .addOnFailureListener { exception ->
-            showAlert(context, "Error al verificar las credenciales: ${exception.message}")
-        }
-}
-
-private fun handleAuthException(context: Context, exception: Exception?) {
-    if (exception is FirebaseAuthInvalidCredentialsException) {
-        showAlert(context, "Nombre de usuario o contraseña incorrectos.")
-    } else {
-        showAlert(context, exception?.message ?: "Se produjo un error al iniciar sesión")
-    }
-}
-
-private fun showAlert(context: Context, error: String) {
-    val builder = AlertDialog.Builder(context)
-    builder.setTitle("Error")
-    builder.setMessage(error)
-    builder.setPositiveButton("Aceptar", null)
-    val dialog: AlertDialog = builder.create()
-    dialog.show()
-}
-
-private fun firebaseAuthWithGoogle(context: Context, idToken: String, authCallback: AuthCallback) {
-    val credential = GoogleAuthProvider.getCredential(idToken, null)
-    FirebaseInstances.authInstance.signInWithCredential(credential)
-        .addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                Log.d("GoogleSignIn", "signInWithCredential:success")
-                val user = FirebaseInstances.authInstance.currentUser
-                saveUserInfo(context, user?.email.toString(), user?.displayName.toString(), user?.displayName.toString())
-                authCallback.onAuthSuccess()
-            } else {
-                Log.w("GoogleSignIn", "signInWithCredential:failure", task.exception)
-                Toast.makeText(context, "error when logging in with google: ${task.exception}", Toast.LENGTH_LONG).show()
-            }
-        }
-}
-
-fun saveUserInfo(context: Context, email: String, username: String, fullName: String) {
-    val sharedPreferences: SharedPreferences = context.getSharedPreferences(context.getString(R.string.prefs_file), Context.MODE_PRIVATE)
-    val editor: SharedPreferences.Editor = sharedPreferences.edit()
-    editor.putString("email", email)
-    editor.putString("username", username)
-    editor.putString("fullname", fullName)
-    editor.apply()
 }
