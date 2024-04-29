@@ -3,7 +3,6 @@ package com.thrashspeed.gamecore.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -23,7 +22,9 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.FilterList
@@ -60,7 +61,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -68,7 +68,6 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.thrashspeed.gamecore.R
 import com.thrashspeed.gamecore.data.model.GameItem
-import com.thrashspeed.gamecore.data.model.PlatformItem
 import com.thrashspeed.gamecore.navigation.AppScreens
 import com.thrashspeed.gamecore.screens.viewmodels.ExploreViewModel
 import com.thrashspeed.gamecore.utils.composables.LoadingIndicator
@@ -92,9 +91,8 @@ fun ExploreScreenBodyContent(topLevelNavController: NavController, navController
     var selectedTabIndex by remember { mutableIntStateOf(initialTabIndex) }
     val horizontalListScrollState = rememberLazyListState()
     val verticalListScrollState = rememberLazyListState()
-    val gridListScrollState = rememberLazyListState()
 
-    val tabs = listOf(LocalContext.current.getString(R.string.exploreTabs_games), LocalContext.current.getString(R.string.exploreTabs_platforms))
+    val tabs = listOf(LocalContext.current.getString(R.string.exploreTabs_trending), LocalContext.current.getString(R.string.exploreTabs_catalogue))
 
     Column(
         modifier = Modifier
@@ -124,7 +122,7 @@ fun ExploreScreenBodyContent(topLevelNavController: NavController, navController
         ) {
             when (selectedTabIndex) {
                 0 -> GamesExploreContent(topLevelNavController = topLevelNavController, navController = navController, viewModel = viewModel, horizontalListScrollState, verticalListScrollState)
-                1 -> PlatformsExploreContent(viewModel = viewModel, scrollState = gridListScrollState)
+                1 -> GamesCatalogue(topLevelNavController = topLevelNavController, viewModel = viewModel)
             }
         }
     }
@@ -133,35 +131,50 @@ fun ExploreScreenBodyContent(topLevelNavController: NavController, navController
 @Composable
 fun GamesExploreContent(topLevelNavController: NavController, navController: NavController, viewModel: ExploreViewModel, horizontalListScrollState: LazyListState, verticalListScrollState: LazyListState) {
     val trendingGamesState by remember(viewModel) { viewModel.trendingGames }.collectAsState()
-    val filteredGamesState by remember(viewModel) { viewModel.filteredGames }.collectAsState()
+    val latestBestRatedGamesState by remember(viewModel) { viewModel.latestBestRatedGames }.collectAsState()
+    val mostHypedGamesState by remember(viewModel) { viewModel.mostHypedGames }.collectAsState()
 
     Column (
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
     ) {
-//        Text(
-//            text = LocalContext.current.getString(R.string.explore_trendingGames),
-//            style = MaterialTheme.typography.headlineMedium.copy(fontSize = 20.sp),
-//            modifier = Modifier.padding(12.dp, 8.dp)
-//        )
+        Text(
+            text = LocalContext.current.getString(R.string.explore_trendingGames),
+            style = MaterialTheme.typography.headlineMedium.copy(fontSize = 24.sp),
+            modifier = Modifier.padding(12.dp, 8.dp)
+        )
+        GamesHorizontalList(games = trendingGamesState, topLevelNavController = topLevelNavController)
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = LocalContext.current.getString(R.string.explore_latestHits),
+            style = MaterialTheme.typography.headlineMedium.copy(fontSize = 24.sp),
+            modifier = Modifier.padding(12.dp, 8.dp)
+        )
+        GamesHorizontalList(games = latestBestRatedGamesState, topLevelNavController = topLevelNavController)
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = LocalContext.current.getString(R.string.explore_mostHyped),
+            style = MaterialTheme.typography.headlineMedium.copy(fontSize = 24.sp),
+            modifier = Modifier.padding(12.dp, 8.dp)
+        )
+        GamesHorizontalList(games = mostHypedGamesState, topLevelNavController = topLevelNavController)
+    }
+}
+
+//@Composable
+//fun PlatformsExploreContent(viewModel: ExploreViewModel, scrollState: LazyListState) {
+//    val platformsList by remember(viewModel) { viewModel.filteredPlatforms }.collectAsState()
 //
-//        GamesHorizontalList(games = trendingGamesState, scrollState = horizontalListScrollState)
-//        Spacer(modifier = Modifier.height(8.dp))
-        GamesVerticalList(topLevelNavController = topLevelNavController, viewModel = viewModel, games = filteredGamesState, scrollState = verticalListScrollState)
-    }
-}
-
-@Composable
-fun PlatformsExploreContent(viewModel: ExploreViewModel, scrollState: LazyListState) {
-    val platformsList by remember(viewModel) { viewModel.filteredPlatforms }.collectAsState()
-
-    Column (
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        PlatformsGrid(platforms = platformsList, scrollState = scrollState)
-    }
-}
+//    Column (
+//        modifier = Modifier
+//            .fillMaxSize()
+//    ) {
+//        PlatformsGrid(platforms = platformsList, scrollState = scrollState)
+//    }
+//}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -255,13 +268,12 @@ fun GenreLabel(
 }
 
 @Composable
-fun GamesVerticalList(
+fun GamesCatalogue(
     topLevelNavController: NavController,
-    viewModel: ExploreViewModel,
-    games: List<GameItem>,
-    scrollState: LazyListState
+    viewModel: ExploreViewModel
 ) {
     val context = LocalContext.current
+    val filteredGamesState by remember(viewModel) { viewModel.filteredGames }.collectAsState()
 
     var showSheet by remember { mutableStateOf(false) }
     var showDropdown by remember { mutableStateOf(false) }
@@ -321,10 +333,9 @@ fun GamesVerticalList(
             LoadingIndicator()
         } else {
             LazyColumn(
-                modifier = Modifier.padding(horizontal = 12.dp),
-                state = scrollState
+                modifier = Modifier.padding(horizontal = 12.dp)
             ) {
-                itemsIndexed(games) { index, game ->
+                itemsIndexed(filteredGamesState) { index, game ->
                     GameListItem(index = index, game = game) { gameClickedId ->
                         topLevelNavController.navigate("${AppScreens.GameDetailsScreen.route}/$gameClickedId")
                     }
@@ -340,7 +351,7 @@ fun GameListItem(index: Int, game: GameItem, onItemClick: (Long) -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
-            .border(width = 1.dp, color = Color.Gray, shape = RoundedCornerShape(8.dp))
+            .border(width = 1.dp, color = Color.Gray, shape = RoundedCornerShape(12.dp))
             .padding(8.dp)
             .clickable { onItemClick(game.id) },
         verticalAlignment = Alignment.CenterVertically
@@ -413,55 +424,54 @@ fun SortByDropDownMenu(viewModel: ExploreViewModel, genresToApply: SnapshotState
     }
 }
 
-@Composable
-fun PlatformsGrid(
-    platforms: List<PlatformItem>,
-    scrollState: LazyListState,
-    modifier: Modifier = Modifier
-) {
-    LazyColumn(modifier = modifier, state = scrollState) {
-        items(platforms.chunked(3)) { chunk ->
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                chunk.forEach { platform ->
-                    Column {
-                        AsyncImage(
-                            model = if (platform.platform_logo != null) IgdbHelperMethods.getImageUrl(platform.platform_logo.image_id ?: "", IgdbImageSizes.SCREENSHOT_MED) else R.drawable.ic_launcher_background,
-                            contentDescription = platform.name + " logo",
-                            contentScale = ContentScale.Fit,
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(4.dp))
-                                .width(120.dp)
-                                .height(120.dp)
-                        )
-                        Text(
-                            textAlign = TextAlign.Center,
-                            text = platform.name
-                        )
-                    }
-                }
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-    }
-}
+//@Composable
+//fun PlatformsGrid(
+//    platforms: List<PlatformItem>,
+//    scrollState: LazyListState,
+//    modifier: Modifier = Modifier
+//) {
+//    LazyColumn(modifier = modifier, state = scrollState) {
+//        items(platforms.chunked(3)) { chunk ->
+//            Row(
+//                modifier = Modifier.fillMaxWidth(),
+//                horizontalArrangement = Arrangement.SpaceEvenly
+//            ) {
+//                chunk.forEach { platform ->
+//                    Column {
+//                        AsyncImage(
+//                            model = if (platform.platform_logo != null) IgdbHelperMethods.getImageUrl(platform.platform_logo.image_id ?: "", IgdbImageSizes.SCREENSHOT_MED) else R.drawable.ic_launcher_background,
+//                            contentDescription = platform.name + " logo",
+//                            contentScale = ContentScale.Fit,
+//                            modifier = Modifier
+//                                .clip(RoundedCornerShape(4.dp))
+//                                .width(120.dp)
+//                                .height(120.dp)
+//                        )
+//                        Text(
+//                            textAlign = TextAlign.Center,
+//                            text = platform.name
+//                        )
+//                    }
+//                }
+//            }
+//            Spacer(modifier = Modifier.height(16.dp))
+//        }
+//    }
+//}
 
 @Composable
-fun GamesHorizontalList(games: List<GameItem>, scrollState: LazyListState) {
+fun GamesHorizontalList(games: List<GameItem>, topLevelNavController: NavController) {
     LazyRow(
-        state = scrollState
-    ) { // Pass the scroll state to LazyRow
+    ) {
         items(games) { gameItem ->
-            GameBigListItem(gameItem)
+            GameBigListItem(gameItem = gameItem, topLevelNavController = topLevelNavController)
             Spacer(modifier = Modifier.width(8.dp))
         }
     }
 }
 
 @Composable
-fun GameBigListItem(gameItem: GameItem) {
+fun GameBigListItem(gameItem: GameItem, topLevelNavController: NavController) {
     Column(
         modifier = Modifier
             .width(160.dp)
@@ -475,6 +485,9 @@ fun GameBigListItem(gameItem: GameItem) {
                 .clip(RoundedCornerShape(4.dp))
                 .align(Alignment.CenterHorizontally)
                 .height(190.dp)
+                .clickable {
+                    topLevelNavController.navigate("${AppScreens.GameDetailsScreen.route}/${gameItem.id}")
+                }
         )
     }
 }

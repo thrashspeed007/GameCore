@@ -37,7 +37,7 @@ fun MyGamesBodyContent(topLevelNavController: NavController, navController: NavC
     val tabsNavController = rememberNavController()
     var selectedTabIndex by remember { mutableIntStateOf(initialTabIndex) }
     val tabs = listOf(
-        LocalContext.current.getString(R.string.exploreTabs_games), LocalContext.current.getString(
+        LocalContext.current.getString(R.string.gamesTrackerTabs_games), LocalContext.current.getString(
             R.string.gamesTrackerTabs_stats), LocalContext.current.getString(
             R.string.gamesTrackerTabs_lists))
 

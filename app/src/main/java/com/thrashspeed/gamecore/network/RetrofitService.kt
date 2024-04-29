@@ -32,7 +32,7 @@ object RetrofitService {
     /**
      * Interfaz que define los puntos finales (endpoints) de la API de IGDB.
      */
-    val tmdbApi: IgdbApiInterface by lazy {
+    val igdbApi: IgdbApiInterface by lazy {
         igdbRetrofit.create(IgdbApiInterface::class.java)
     }
 }

@@ -3,28 +3,30 @@
     <string name="prefs_file">com.thrashspeed.gamecore.PREFERENCE_FILE_KEY</string>
 
 <!--    Auth Screen -->
-    <string name="languageBtnText">Español</string>
-    <string name="emailInputPlaceholder">Correo electrónico</string>
-    <string name="usernameInputPlaceholder">Usuario</string>
-    <string name="passwordInputPlaceholder">Contraseña</string>
-    <string name="passwordConfirmationPlaceHolder">Confirmar contraseña</string>
-    <string name="fullnameInputPlaceholder">Nombre completo</string>
-    <string name="logInBtnText">INICIAR SESIÓN</string>
-    <string name="signUpBtnText">REGISTRARSE</string>
-    <string name="googleLogInBtnText">CONTINUAR CON GOOGLE</string>
+    <string name="emailInputPlaceholder">E-mail</string>
+    <string name="usernameInputPlaceholder">Username</string>
+    <string name="passwordInputPlaceholder">Password</string>
+    <string name="passwordConfirmationPlaceHolder">Confirm password</string>
+    <string name="fullnameInputPlaceholder">Full name</string>
+    <string name="logInBtnText">LOG IN</string>
+    <string name="signUpBtnText">SIGN UP</string>
+    <string name="googleLogInBtnText">CONTINUE WITH GOOGLE</string>
 
 <!--    Explore screen -->
-    <string name="exploreTabs_games">VIDEOGAMES</string>
-    <string name="exploreTabs_platforms">PLATFORMS</string>
-    <string name="explore_famousGames">Juegos populares</string>
-    <string name="explore_trendingGames">Juegos en tendencia</string>
-    <string name="explore_gamesCatalogue">Catálogo</string>
-    <string name="explore_sortBy">Ordenar por</string>
-    <string name="explore_sortByBestRated">Mejor valorados</string>
-    <string name="explore_sortByMostPlayed">Más jugados</string>
-    <string name="explore_applyFilter">APLICAR FILTROS</string>
+    <string name="exploreTabs_trending">TRENDING</string>
+    <string name="exploreTabs_catalogue">CATALOGUE</string>
+    <string name="explore_famousGames">Popular games</string>
+    <string name="explore_trendingGames">Trending games</string>
+    <string name="explore_latestHits">Latest hits</string>
+    <string name="explore_mostHyped">Most hyped</string>
+    <string name="explore_gamesCatalogue">Catalogue</string>
+    <string name="explore_sortBy">Sort by</string>
+    <string name="explore_sortByBestRated">Best rated</string>
+    <string name="explore_sortByMostPlayed">Most played</string>
+    <string name="explore_applyFilter">APPLY FILTERS</string>
     
 <!--    Games Tracker screen -->
+    <string name="gamesTrackerTabs_games">VIDEOGAMES</string>
     <string name="gamesTrackerTabs_lists">LISTS</string>
     <string name="gamesTrackerTabs_stats">STATS</string>
 

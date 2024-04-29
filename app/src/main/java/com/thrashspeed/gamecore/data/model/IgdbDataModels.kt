@@ -51,9 +51,11 @@ data class GameDetailed(
     val id: Long,
     val name: String,
     val summary: String,
+    val storyline: String?,
     val first_release_date: Long,
     val involved_companies: List<String>,
     val cover: GameCover,
+    val screenshots: List<GameCover>,
     val total_rating: Double,
     val genres: List<Genres>
 )
@@ -61,7 +63,7 @@ data class GameDetailed(
 data class GameItem(
     val id: Long,
     val name: String,
-    val cover: GameCover,
+    val cover: GameCover?,
     val first_release_date: Long
 )
 

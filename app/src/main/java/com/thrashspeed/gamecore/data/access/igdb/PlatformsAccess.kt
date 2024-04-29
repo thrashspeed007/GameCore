@@ -27,7 +27,7 @@ class PlatformsAccess {
                 .addLimit(28)
                 .buildQuery()
 
-        val call = RetrofitService.tmdbApi.getPlatforms(createTextRequestBody(latestPlatformsQuery))
+        val call = RetrofitService.igdbApi.getPlatforms(createTextRequestBody(latestPlatformsQuery))
 
         call.enqueue(object : Callback<List<PlatformItem>> {
             override fun onFailure(call: Call<List<PlatformItem>>, t: Throwable) {

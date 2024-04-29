@@ -28,7 +28,7 @@ class GamesAccess {
                 .addLimit(30)
                 .buildQuery()
 
-        val call = RetrofitService.tmdbApi.getGames(createTextRequestBody(searchGamesQuery))
+        val call = RetrofitService.igdbApi.getGames(createTextRequestBody(searchGamesQuery))
 
         call.enqueue(object : Callback<List<GameItem>> {
             override fun onFailure(call: Call<List<GameItem>>, t: Throwable) {
@@ -51,11 +51,11 @@ class GamesAccess {
     fun getGameDetails(id: Int, callback: (List<GameDetailed>) -> Unit) {
         val gameDetailsQuery =
             IgdbQuery()
-                .addFields(listOf("name", "summary", "cover.image_id", "genres.name", "involved_companies", "first_release_date", "total_rating"))
+                .addFields(listOf("name", "summary", "storyline", "cover.image_id", "screenshots.image_id", "genres.name", "involved_companies", "first_release_date", "total_rating"))
                 .addWhereClause("id = ($id)")
                 .buildQuery()
 
-        val call = RetrofitService.tmdbApi.getGame(createTextRequestBody(gameDetailsQuery))
+        val call = RetrofitService.igdbApi.getGame(createTextRequestBody(gameDetailsQuery))
 
         call.enqueue(object : Callback<List<GameDetailed>> {
             override fun onFailure(call: Call<List<GameDetailed>>, t: Throwable) {
@@ -64,6 +64,7 @@ class GamesAccess {
 
             override fun onResponse(call: Call<List<GameDetailed>>, response: Response<List<GameDetailed>>) {
                 val game = response.body()
+                Log.d("xd", "$game")
 
                 if (game != null) {
                     callback.invoke(game)
@@ -81,7 +82,7 @@ class GamesAccess {
                 .addLimit(30)
                 .buildQuery()
 
-        val call = RetrofitService.tmdbApi.getGames(createTextRequestBody(filteredGamesQuery))
+        val call = RetrofitService.igdbApi.getGames(createTextRequestBody(filteredGamesQuery))
 
         call.enqueue(object : Callback<List<GameItem>> {
             override fun onFailure(call: Call<List<GameItem>>, t: Throwable) {
@@ -109,7 +110,7 @@ class GamesAccess {
                 .addLimit(30)
                 .buildQuery()
 
-        val call = RetrofitService.tmdbApi.getGames(createTextRequestBody(famousGamesQuery))
+        val call = RetrofitService.igdbApi.getGames(createTextRequestBody(famousGamesQuery))
 
         call.enqueue(object : Callback<List<GameItem>> {
             override fun onFailure(call: Call<List<GameItem>>, t: Throwable) {
@@ -135,16 +136,16 @@ class GamesAccess {
 
         val trendingGamesQuery =
             IgdbQuery()
-                .addFields(listOf("name", "platform_logo.image_id"))
+                .addFields(listOf("name", "cover.image_id"))
                 .addWhereClause(
-                    "first_release_date > \"$threeWeeksAgo\"",
-                    "first_release_date < \"$today\""
+                    "first_release_date > $threeWeeksAgo",
+                    "first_release_date < $today"
                 )
                 .addSortBy(IgdbSortOptions.MOST_PLAYED)
                 .addLimit(20)
                 .buildQuery()
 
-        val call = RetrofitService.tmdbApi.getGames(createTextRequestBody(trendingGamesQuery))
+        val call = RetrofitService.igdbApi.getGames(createTextRequestBody(trendingGamesQuery))
 
         call.enqueue(object : Callback<List<GameItem>> {
             override fun onFailure(call: Call<List<GameItem>>, t: Throwable) {
@@ -152,6 +153,78 @@ class GamesAccess {
             }
 
             override fun onResponse(call: Call<List<GameItem>>, response: Response<List<GameItem>>) {
+                val games = response.body()
+
+                if (games != null) {
+                    callback.invoke(games)
+                }
+            }
+        })
+    }
+
+    fun getLatestBestRatedGames(callback: (List<GameItem>) -> Unit) {
+        val calendar = Calendar.getInstance()
+        calendar.add(Calendar.WEEK_OF_YEAR, -10)
+
+        val tenWeeksAgo = calendar.timeInMillis / 1000
+        val today = Calendar.getInstance().timeInMillis / 1000
+
+        val latestBestRatedGamesQuery =
+            IgdbQuery()
+                .addFields(listOf("name", "cover.image_id"))
+                .addWhereClause(
+                    "first_release_date > $tenWeeksAgo",
+                    "first_release_date < $today",
+                    "total_rating_count > 5"
+                )
+                .addSortBy(IgdbSortOptions.RATING)
+                .addLimit(20)
+                .buildQuery()
+
+        val call = RetrofitService.igdbApi.getGames(createTextRequestBody(latestBestRatedGamesQuery))
+
+        call.enqueue(object : Callback<List<GameItem>> {
+            override fun onFailure(call: Call<List<GameItem>>, t: Throwable) {
+                Log.d("GamesAccess", "getLatestBestRatedGames:onFailure: ${t.message}")
+            }
+
+            override fun onResponse(
+                call: Call<List<GameItem>>,
+                response: Response<List<GameItem>>
+            ) {
+                val games = response.body()
+
+                if (games != null) {
+                    callback.invoke(games)
+                }
+            }
+        })
+    }
+
+    fun getMostHypedGames(callback: (List<GameItem>) -> Unit) {
+        val today = Calendar.getInstance().timeInMillis / 1000
+
+        val mostHypedGamesQuery =
+            IgdbQuery()
+                .addFields(listOf("name", "cover.image_id"))
+                .addWhereClause(
+                    "first_release_date > $today"
+                )
+                .addSortBy(IgdbSortOptions.HYPE)
+                .addLimit(20)
+                .buildQuery()
+
+        val call = RetrofitService.igdbApi.getGames(createTextRequestBody(mostHypedGamesQuery))
+
+        call.enqueue(object : Callback<List<GameItem>> {
+            override fun onFailure(call: Call<List<GameItem>>, t: Throwable) {
+                Log.d("GamesAccess", "getMostHypedGames:onFailure: ${t.message}")
+            }
+
+            override fun onResponse(
+                call: Call<List<GameItem>>,
+                response: Response<List<GameItem>>
+            ) {
                 val games = response.body()
 
                 if (games != null) {

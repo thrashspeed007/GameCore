@@ -11,11 +11,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.StarRate
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -134,16 +141,39 @@ fun GameDetailsHeader(navController: NavController, gameName: String) {
 
 @Composable
 fun GameDetailsContent(game: GameDetailed) {
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(vertical = 8.dp)) {
-        Row(modifier = Modifier.padding(horizontal = 16.dp)) {
+    Column (
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(vertical = 8.dp)
+            .verticalScroll(rememberScrollState())
+    ) {
+        Row (
+            modifier = Modifier.padding(horizontal = 16.dp)
+        ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text("Date: " + SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date(game.first_release_date * 1000)))
+                Row (
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(imageVector = Icons.Default.DateRange, contentDescription = "Game release date")
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(text = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date(game.first_release_date * 1000)))
+                }
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(game.genres.joinToString { it.name }, fontSize = 16.sp, maxLines = 3, overflow = TextOverflow.Ellipsis)
+                Row (
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(imageVector = Icons.Default.Category, contentDescription = "Game genres")
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(game.genres.joinToString { it.name }, fontSize = 16.sp, maxLines = 3, overflow = TextOverflow.Ellipsis)
+                }
                 Spacer(modifier = Modifier.height(16.dp))
-                Text("Rating: ${(game.total_rating * 10.0).roundToInt() / 10.0}")
+                Row (
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(imageVector = Icons.Default.StarRate, contentDescription = "Game rating")
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(text = ((game.total_rating * 10.0).roundToInt() / 10.0).toString())
+                }
             }
             Spacer(modifier = Modifier.width(8.dp))
             AsyncImage(
@@ -154,6 +184,47 @@ fun GameDetailsContent(game: GameDetailed) {
                     .clip(RoundedCornerShape(4.dp))
                     .width(180.dp)
             )
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Column (
+            modifier = Modifier.padding(horizontal = 16.dp)
+        ) {
+//            Row (
+//                verticalAlignment = Alignment.CenterVertically
+//            ) {
+//                Icon(imageVector = Icons.Default.VideogameAsset, contentDescription = "Game companies")
+//                Spacer(modifier = Modifier.width(4.dp))
+//                Text(text = game.involved_companies.joinToString(", "))
+//            }
+            Text(text = "Summary", fontSize = 20.sp )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = game.summary ?: "", maxLines = 10)
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            LazyRow (
+            ) {
+                items(game.screenshots) { screenshot ->
+                    AsyncImage(
+                        model = IgdbHelperMethods.getImageUrl(screenshot.image_id, IgdbImageSizes.SIZE_720P),
+                        contentDescription = "${game.name} screenshot",
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(4.dp))
+                            .width(320.dp)
+                            .height(180.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            if (game.storyline !== null) {
+                Text(text = "Storyline", fontSize = 20.sp )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(text = game.storyline ?: "", maxLines = 10)
+            }
         }
     }
 }

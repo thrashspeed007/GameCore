@@ -5,9 +5,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.thrashspeed.gamecore.data.access.igdb.GamesAccess
-import com.thrashspeed.gamecore.data.access.igdb.PlatformsAccess
 import com.thrashspeed.gamecore.data.model.GameItem
-import com.thrashspeed.gamecore.data.model.PlatformItem
 import com.thrashspeed.gamecore.utils.igdb.IgdbSortOptions
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -21,20 +19,25 @@ class ExploreViewModel : ViewModel() {
     }
 
     private val gamesAccess = GamesAccess()
-    private val platformsAccess = PlatformsAccess()
+//    private val platformsAccess = PlatformsAccess()
 
     // State to hold the list of popular games
     private val _filteredGames = MutableStateFlow<List<GameItem>>(emptyList())
     private val _trendingGames = MutableStateFlow<List<GameItem>>(emptyList())
-    private val _filteredPlatforms = MutableStateFlow<List<PlatformItem>>(emptyList())
+    private val _latestBestRatedGames = MutableStateFlow<List<GameItem>>(emptyList())
+    private val _mostHypedGames = MutableStateFlow<List<GameItem>>(emptyList())
+//    private val _filteredPlatforms = MutableStateFlow<List<PlatformItem>>(emptyList())
     val filteredGames = _filteredGames
     val trendingGames = _trendingGames
-    val filteredPlatforms = _filteredPlatforms
+    val latestBestRatedGames = _latestBestRatedGames
+    val mostHypedGames = _mostHypedGames
+//    val filteredPlatforms = _filteredPlatforms
 
     init {
         fetchFilteredGames()
         fetchTrendingGames()
-        fetchFilteredPlatforms()
+        fetchLatestBestRatedGames()
+        fetchMostHypedGames()
     }
 
     private fun fetchFilteredGames() {
@@ -53,13 +56,29 @@ class ExploreViewModel : ViewModel() {
         }
     }
 
-    private fun fetchFilteredPlatforms() {
+    private fun fetchLatestBestRatedGames() {
         viewModelScope.launch {
-            platformsAccess.getLatestPlatforms { platforms ->
-                _filteredPlatforms.value = platforms
+            gamesAccess.getLatestBestRatedGames { games ->
+                _latestBestRatedGames.value = games
             }
         }
     }
+
+    private fun fetchMostHypedGames() {
+        viewModelScope.launch {
+            gamesAccess.getMostHypedGames { games ->
+                _mostHypedGames.value = games
+            }
+        }
+    }
+
+//    private fun fetchFilteredPlatforms() {
+//        viewModelScope.launch {
+//            platformsAccess.getLatestPlatforms { platforms ->
+//                _filteredPlatforms.value = platforms
+//            }
+//        }
+//    }
 
     fun updateGamesInList(genres: List<Int>, sortOption: IgdbSortOptions, callback: (Boolean) -> Unit) {
         viewModelScope.launch {
