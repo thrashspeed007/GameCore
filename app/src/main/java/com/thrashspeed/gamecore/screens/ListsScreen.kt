@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -36,13 +37,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
 import com.thrashspeed.gamecore.R
 import com.thrashspeed.gamecore.data.model.ListEntity
 import com.thrashspeed.gamecore.screens.viewmodels.ListsViewModel
@@ -113,8 +112,9 @@ fun ListsBodyContent(viewModel: ListsViewModel) {
 }
 
 @Composable
-fun ListItem(list: ListEntity, viewModel: ListsViewModel) {
+fun ListItem(list: ListEntity, viewModel: ListsViewModel, addMode: Boolean = false, addCallback: ((Long, Boolean) -> Unit)? = null) {
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var checked by remember { mutableStateOf(false) }
 
     Row (
         verticalAlignment = Alignment.CenterVertically,
@@ -132,27 +132,40 @@ fun ListItem(list: ListEntity, viewModel: ListsViewModel) {
             }
         }
 
-        if (list.games.isNotEmpty()) {
-            AsyncImage(
-                model = {
-                    // TODO
-                    // HACER MIXES DE FOTOS DE LOS JUEGOS DE LA LISTA CON UN BOX O ALGO
-                },
-                contentDescription = list.name + " cover image",
-                contentScale = ContentScale.Fit,
-                modifier = Modifier
-                    .width(60.dp)
-            )
-        } else {
-            Image(painter = painterResource(id = R.drawable.game_list_icon), contentDescription = "List placeholder image", modifier = Modifier.width(60.dp))
-        }
+//        if (list.games.isNotEmpty()) {
+//            AsyncImage(
+//                model = {
+//                    // TODO
+//                    // HACER MIXES DE FOTOS DE LOS JUEGOS DE LA LISTA CON UN BOX O ALGO
+//                },
+//                contentDescription = list.name + " cover image",
+//                contentScale = ContentScale.Fit,
+//                modifier = Modifier
+//                    .width(60.dp)
+//            )
+//        } else {
+//            Image(painter = painterResource(id = R.drawable.game_list_icon), contentDescription = "List placeholder image", modifier = Modifier.width(60.dp))
+//        }
+        Image(painter = painterResource(id = R.drawable.game_list_icon), contentDescription = "List placeholder image", modifier = Modifier.width(60.dp))
         Text(
             text = list.name,
-            modifier = Modifier.weight(1f).padding(start = 8.dp),
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 8.dp),
             fontSize = 20.sp
         )
-        IconButton(onClick = { showDeleteDialog = true }) {
-            Icon(imageVector = Icons.Default.Clear, contentDescription = "Delete list icon", tint = MaterialTheme.colorScheme.error)
+        if (addMode) {
+            Checkbox(
+                checked = checked,
+                onCheckedChange = {
+                    checked = it
+                    addCallback!!.invoke(list.id, checked)
+                }
+            )
+        } else {
+            IconButton(onClick = { showDeleteDialog = true }) {
+                Icon(imageVector = Icons.Default.Clear, contentDescription = "Delete list icon", tint = MaterialTheme.colorScheme.error)
+            }
         }
     }
 }

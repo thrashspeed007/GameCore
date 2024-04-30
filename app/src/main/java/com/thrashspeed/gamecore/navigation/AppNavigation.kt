@@ -33,6 +33,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.thrashspeed.gamecore.R
+import com.thrashspeed.gamecore.data.model.GameCover
+import com.thrashspeed.gamecore.data.model.GameItem
+import com.thrashspeed.gamecore.screens.AddGameToListScreen
 import com.thrashspeed.gamecore.screens.ExploreScreen
 import com.thrashspeed.gamecore.screens.GameDetailsScreen
 import com.thrashspeed.gamecore.screens.MyGamesScreen
@@ -71,6 +74,34 @@ fun AppNavigation() {
             val gameId = it.arguments?.getString("gameId")
 
             GameDetailsScreen(navController = topLevelNavController, gameId = gameId?.toInt() ?: -1)
+        }
+        composable(
+            route ="${AppScreens.AddGameToList.route}/{gameId}/{name}/{cover}/{firstReleaseDate}",
+            enterTransition = { slideInHorizontally(
+                initialOffsetX = { it },
+                animationSpec = tween(300)
+            ) },
+            exitTransition = { slideOutHorizontally(
+                targetOffsetX = { it },
+                animationSpec = tween(300)
+            ) }
+        ) {
+            val gameId = it.arguments?.getString("gameId")
+            val name = it.arguments?.getString("name")
+            val cover = it.arguments?.getString("cover")
+            val firstReleaseDate = it.arguments?.getString("firstReleaseDate")
+
+            val gameItem = GameItem(
+                id = gameId?.toLong() ?: -1,
+                name = name.toString(),
+                cover = GameCover(
+                    id = -1,
+                    image_id = cover.toString()
+                ),
+                first_release_date = firstReleaseDate?.toLong() ?: -1
+            )
+
+            AddGameToListScreen(topLevelNavController = topLevelNavController, game = gameItem)
         }
     }
 }

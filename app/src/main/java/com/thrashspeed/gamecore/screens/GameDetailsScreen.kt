@@ -17,6 +17,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Category
@@ -26,6 +27,7 @@ import androidx.compose.material.icons.filled.StarRate
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -56,6 +58,7 @@ import coil.compose.AsyncImage
 import com.thrashspeed.gamecore.R
 import com.thrashspeed.gamecore.data.model.GameDetailed
 import com.thrashspeed.gamecore.data.model.GameStatus
+import com.thrashspeed.gamecore.navigation.AppScreens
 import com.thrashspeed.gamecore.screens.viewmodels.GameDetailsViewModel
 import com.thrashspeed.gamecore.screens.viewmodels.GameDetailsViewModelFactory
 import com.thrashspeed.gamecore.utils.composables.LoadingIndicator
@@ -73,12 +76,12 @@ fun GameDetailsScreen(navController: NavController, gameId: Int) {
         factory = GameDetailsViewModelFactory(gameId)
     )
 
-    GameDetailsScreenBodyContent(navController = navController, gameId = gameId, viewModel = viewModel)
+    GameDetailsScreenBodyContent(topLevelNavController = navController, gameId = gameId, viewModel = viewModel)
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun GameDetailsScreenBodyContent(navController: NavController, gameId: Int, viewModel: GameDetailsViewModel) {
+fun GameDetailsScreenBodyContent(topLevelNavController: NavController, gameId: Int, viewModel: GameDetailsViewModel) {
     val gameDetailsState by viewModel.gameDetails.collectAsState()
 
     val game = gameDetailsState.firstOrNull()
@@ -87,6 +90,7 @@ fun GameDetailsScreenBodyContent(navController: NavController, gameId: Int, view
     if (showSheet) {
         AddToTagBottomSheet(
             viewModel = viewModel,
+            topLevelNavController = topLevelNavController,
             onDismissBottomSheet = { showSheet = false }
         )
     }
@@ -108,7 +112,7 @@ fun GameDetailsScreenBodyContent(navController: NavController, gameId: Int, view
             Column(modifier = Modifier
                 .fillMaxSize()
                 .padding(vertical = 8.dp)) {
-                GameDetailsHeader(navController = navController, gameName = game.name)
+                GameDetailsHeader(navController = topLevelNavController, gameName = game.name)
                 GameDetailsContent(game = game)
             }
         }
@@ -235,6 +239,7 @@ fun GameDetailsContent(game: GameDetailed) {
 @Composable
 fun AddToTagBottomSheet(
     viewModel: GameDetailsViewModel,
+    topLevelNavController: NavController,
     onDismissBottomSheet: () -> Unit
 ) {
     val modalBottomSheetState = rememberModalBottomSheetState()
@@ -277,7 +282,27 @@ fun AddToTagBottomSheet(
                 ) {
                     Icon(imageVector = Icons.Default.Check, contentDescription = "Ok button")
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = "OK")
+                    Text(text = "ADD STATE")
+                }
+            }
+            Divider(modifier = Modifier.padding(vertical = 16.dp, horizontal = 16.dp))
+            Button(
+                onClick = {
+//                    coroutineScope.launch {
+//                        modalBottomSheetState.hide()
+//                        onDismissBottomSheet()
+//                    }
+                    onDismissBottomSheet()
+                    val gameItem = viewModel.gameDetails.value.firstOrNull()
+                    topLevelNavController.navigate("${AppScreens.AddGameToList.route}/${gameItem?.id}/${gameItem?.name}/${gameItem?.cover?.image_id}/${gameItem?.first_release_date}")
+                }
+            ) {
+                Row (
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(imageVector = Icons.AutoMirrored.Filled.PlaylistAdd, contentDescription = "Add to lists button")
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(text = "ADD TO LISTS")
                 }
             }
         }
