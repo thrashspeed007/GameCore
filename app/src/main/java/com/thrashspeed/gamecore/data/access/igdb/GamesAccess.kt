@@ -64,7 +64,6 @@ class GamesAccess {
 
             override fun onResponse(call: Call<List<GameDetailed>>, response: Response<List<GameDetailed>>) {
                 val game = response.body()
-                Log.d("xd", "$game")
 
                 if (game != null) {
                     callback.invoke(game)

@@ -9,5 +9,6 @@ sealed class AppScreens(val route: String) {
     object GamesTrackerScreen: AppScreens("games_tracker_screen")
     object StatsScreen: AppScreens("stats_screen")
     object ListsScreen: AppScreens("lists_screen")
-    object AddGameToList: AppScreens("add_game_to_list")
+    object AddGameToListScreen: AppScreens("add_game_to_list_screen")
+    object ListContentScreen: AppScreens("list_content_screen")
 }

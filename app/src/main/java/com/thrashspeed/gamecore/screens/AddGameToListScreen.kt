@@ -65,7 +65,7 @@ fun AddGameToListScreen(topLevelNavController: NavController, game: GameItem, vi
         ) {
             Row (
                 horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth().padding(top = 8.dp, end = 8.dp)
+                modifier = Modifier.fillMaxWidth().padding(top = 16.dp, end = 16.dp)
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -118,7 +118,7 @@ fun AddGameToListScreen(topLevelNavController: NavController, game: GameItem, vi
 
                 ) {
                     items(items = lists) { list ->
-                        ListItem(list = list, viewModel = viewModel, addMode = true) { id, added ->
+                        ListItem(list = list, viewModel = viewModel, addMode = true, topLevelNavController = topLevelNavController) { id, added ->
                             if (added) {
                                 listsToAddTo.add(id)
                             } else {

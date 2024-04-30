@@ -294,8 +294,9 @@ fun AddToTagBottomSheet(
 //                    }
                     onDismissBottomSheet()
                     val gameItem = viewModel.gameDetails.value.firstOrNull()
-                    topLevelNavController.navigate("${AppScreens.AddGameToList.route}/${gameItem?.id}/${gameItem?.name}/${gameItem?.cover?.image_id}/${gameItem?.first_release_date}")
-                }
+                    topLevelNavController.navigate("${AppScreens.AddGameToListScreen.route}/${gameItem?.id}/${gameItem?.name}/${gameItem?.cover?.image_id}/${gameItem?.first_release_date}")
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary, contentColor = MaterialTheme.colorScheme.onSecondary)
             ) {
                 Row (
                     verticalAlignment = Alignment.CenterVertically

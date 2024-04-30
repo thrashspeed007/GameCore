@@ -38,6 +38,7 @@ import com.thrashspeed.gamecore.data.model.GameItem
 import com.thrashspeed.gamecore.screens.AddGameToListScreen
 import com.thrashspeed.gamecore.screens.ExploreScreen
 import com.thrashspeed.gamecore.screens.GameDetailsScreen
+import com.thrashspeed.gamecore.screens.ListContentScreen
 import com.thrashspeed.gamecore.screens.MyGamesScreen
 import com.thrashspeed.gamecore.screens.SearchGamesScreen
 
@@ -76,7 +77,7 @@ fun AppNavigation() {
             GameDetailsScreen(navController = topLevelNavController, gameId = gameId?.toInt() ?: -1)
         }
         composable(
-            route ="${AppScreens.AddGameToList.route}/{gameId}/{name}/{cover}/{firstReleaseDate}",
+            route ="${AppScreens.AddGameToListScreen.route}/{gameId}/{name}/{cover}/{firstReleaseDate}",
             enterTransition = { slideInHorizontally(
                 initialOffsetX = { it },
                 animationSpec = tween(300)
@@ -102,6 +103,21 @@ fun AppNavigation() {
             )
 
             AddGameToListScreen(topLevelNavController = topLevelNavController, game = gameItem)
+        }
+        composable(
+            route = "${AppScreens.ListContentScreen.route}/{listId}",
+            enterTransition = { slideInHorizontally(
+                initialOffsetX = { it },
+                animationSpec = tween(300)
+            ) },
+            exitTransition = { slideOutHorizontally(
+                targetOffsetX = { it },
+                animationSpec = tween(300)
+            ) }
+        ) {
+            val listId = it.arguments?.getString("listId")
+
+            ListContentScreen(topLevelNavController = topLevelNavController, listId = listId?.toLong() ?: -1)
         }
     }
 }

@@ -2,6 +2,7 @@ package com.thrashspeed.gamecore.screens
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -44,16 +45,17 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
 import com.thrashspeed.gamecore.R
 import com.thrashspeed.gamecore.data.model.ListEntity
+import com.thrashspeed.gamecore.navigation.AppScreens
 import com.thrashspeed.gamecore.screens.viewmodels.ListsViewModel
 
 @Composable
 fun ListsScreen(topLevelNavController: NavController, navController: NavController, viewModel: ListsViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
-    ListsBodyContent(viewModel = viewModel)
+    ListsBodyContent(viewModel = viewModel, topLevelNavController = topLevelNavController)
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun ListsBodyContent(viewModel: ListsViewModel) {
+fun ListsBodyContent(viewModel: ListsViewModel, topLevelNavController: NavController) {
     val lists = viewModel.allLists.observeAsState(initial = emptyList()).value
     var showDialog by remember { mutableStateOf(false) }
 
@@ -77,7 +79,7 @@ fun ListsBodyContent(viewModel: ListsViewModel) {
         ) {
             Text(
                 text = "Lists",
-                modifier = Modifier.padding(8.dp),
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                 fontSize = 24.sp
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -103,7 +105,7 @@ fun ListsBodyContent(viewModel: ListsViewModel) {
 
                 ) {
                     items(items = lists) { list ->
-                        ListItem(list = list, viewModel)
+                        ListItem(list = list, viewModel, topLevelNavController = topLevelNavController)
                     }
                 }
             }
@@ -112,7 +114,7 @@ fun ListsBodyContent(viewModel: ListsViewModel) {
 }
 
 @Composable
-fun ListItem(list: ListEntity, viewModel: ListsViewModel, addMode: Boolean = false, addCallback: ((Long, Boolean) -> Unit)? = null) {
+fun ListItem(list: ListEntity, viewModel: ListsViewModel, topLevelNavController: NavController, addMode: Boolean = false, addCallback: ((Long, Boolean) -> Unit)? = null) {
     var showDeleteDialog by remember { mutableStateOf(false) }
     var checked by remember { mutableStateOf(false) }
 
@@ -122,6 +124,11 @@ fun ListItem(list: ListEntity, viewModel: ListsViewModel, addMode: Boolean = fal
             .fillMaxWidth()
             .padding(horizontal = 8.dp, vertical = 8.dp)
             .height(80.dp)
+            .clickable {
+                if (!addMode) {
+                    topLevelNavController.navigate("${AppScreens.ListContentScreen.route}/${list.id}")
+                }
+            }
     ) {
         if (showDeleteDialog) {
             DeleteListDialog { confirmed ->

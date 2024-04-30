@@ -33,5 +33,4 @@ class ListsViewModel (private val listsRepository: ListsRepository = DependencyC
             }
         }
     }
-
 }
