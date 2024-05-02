@@ -82,6 +82,10 @@ class AuthViewModel: ViewModel() {
     }
 
     fun loginUser(context: Context, authCallback: AuthCallback, username: String, password: String) {
+        if (username.isEmpty() || password.isEmpty()) {
+            return
+        }
+
         val usernames = FirebaseInstances.firestoreInstance.collection("usernames")
         val users = FirebaseInstances.firestoreInstance.collection("users")
 

@@ -11,13 +11,16 @@ import com.thrashspeed.gamecore.ui.theme.GameCoreTheme
 
 class MainActivity : ComponentActivity(), AuthCallback {
 
+    private val darkThemeCallback: (Boolean) -> Unit = { window.decorView.setBackgroundColor(if (it) 0xFF1C1B1F.toInt() else 0xFFFFFBFE.toInt()) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         DependencyContainer.provide(this)
+
         setContent {
             GameCoreTheme {
                 if (session()) {
-                    AppNavigation()
+                    AppNavigation(darkThemeCallback)
                 } else {
                     AuthScreen(this)
                 }
@@ -28,7 +31,7 @@ class MainActivity : ComponentActivity(), AuthCallback {
     override fun onAuthSuccess() {
         setContent {
             GameCoreTheme {
-                AppNavigation()
+                AppNavigation(darkThemeCallback)
             }
         }
     }

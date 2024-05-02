@@ -27,4 +27,11 @@ class GamesTrackerViewModel (private val gamesRepository: GamesRepository = Depe
             gamesRepository.deleteGame(game)
         }
     }
+
+    fun changeGameStatus(game: GameEntity, status: GameStatus) {
+        viewModelScope.launch {
+            game.status = status
+            gamesRepository.updateGame(game)
+        }
+    }
 }

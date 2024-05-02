@@ -28,4 +28,10 @@ class GamesRepository(private val gameDao: GameDao) {
             gameDao.deleteGame(game)
         }
     }
+
+    suspend fun updateGame(game: GameEntity) {
+        withContext(Dispatchers.IO) {
+            gameDao.updateGame(game)
+        }
+    }
 }

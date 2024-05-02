@@ -20,7 +20,6 @@ import androidx.compose.material.icons.filled.Castle
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -38,6 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -47,6 +47,7 @@ import com.thrashspeed.gamecore.R
 import com.thrashspeed.gamecore.data.model.ListEntity
 import com.thrashspeed.gamecore.navigation.AppScreens
 import com.thrashspeed.gamecore.screens.viewmodels.ListsViewModel
+import com.thrashspeed.gamecore.utils.composables.DeleteDialog
 
 @Composable
 fun ListsScreen(topLevelNavController: NavController, navController: NavController, viewModel: ListsViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
@@ -131,7 +132,10 @@ fun ListItem(list: ListEntity, viewModel: ListsViewModel, topLevelNavController:
             }
     ) {
         if (showDeleteDialog) {
-            DeleteListDialog { confirmed ->
+            DeleteDialog(
+                dialogTitleText = "Delete list",
+                dialogContentText = "Are you sure you want to delete this list?"
+            ) { confirmed ->
                 showDeleteDialog = false
                 if (confirmed) {
                     viewModel.deleteList(list)
@@ -153,7 +157,7 @@ fun ListItem(list: ListEntity, viewModel: ListsViewModel, topLevelNavController:
 //        } else {
 //            Image(painter = painterResource(id = R.drawable.game_list_icon), contentDescription = "List placeholder image", modifier = Modifier.width(60.dp))
 //        }
-        Image(painter = painterResource(id = R.drawable.game_list_icon), contentDescription = "List placeholder image", modifier = Modifier.width(60.dp))
+        Image(painter = painterResource(id = R.drawable.game_list_icon), contentDescription = "List placeholder image", modifier = Modifier.width(60.dp), colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground))
         Text(
             text = list.name,
             modifier = Modifier
@@ -219,32 +223,6 @@ fun CreateListDialog(viewModel: ListsViewModel, onDismiss: () -> Unit) {
                 }
             ) {
                 Text(text = "OK")
-            }
-        },
-        properties = DialogProperties(dismissOnClickOutside = true),
-    )
-}
-
-@Composable
-fun DeleteListDialog(onDismiss: (confirmed: Boolean) -> Unit) {
-    AlertDialog(
-        onDismissRequest = { onDismiss(false) },
-        title = { Text("Delete List") },
-        text = { Text("Are you sure you want to delete this list?") },
-        confirmButton = {
-            Button(
-                onClick = { onDismiss(true) },
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-            ) {
-                Text("Delete")
-            }
-        },
-        dismissButton = {
-            Button(
-                onClick = { onDismiss(false) },
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onBackground)
-            ) {
-                Text("Cancel")
             }
         },
         properties = DialogProperties(dismissOnClickOutside = true),

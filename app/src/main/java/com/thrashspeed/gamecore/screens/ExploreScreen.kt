@@ -134,47 +134,39 @@ fun GamesExploreContent(topLevelNavController: NavController, navController: Nav
     val latestBestRatedGamesState by remember(viewModel) { viewModel.latestBestRatedGames }.collectAsState()
     val mostHypedGamesState by remember(viewModel) { viewModel.mostHypedGames }.collectAsState()
 
-    Column (
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-    ) {
-        Text(
-            text = LocalContext.current.getString(R.string.explore_trendingGames),
-            style = MaterialTheme.typography.headlineMedium.copy(fontSize = 24.sp),
-            modifier = Modifier.padding(12.dp, 8.dp)
-        )
-        GamesHorizontalList(games = trendingGamesState, topLevelNavController = topLevelNavController)
-        Spacer(modifier = Modifier.height(8.dp))
+    if (trendingGamesState.isEmpty() || latestBestRatedGamesState.isEmpty() || mostHypedGamesState.isEmpty()) {
+        LoadingIndicator()
+    } else {
+        Column (
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ) {
+            Text(
+                text = LocalContext.current.getString(R.string.explore_trendingGames),
+                style = MaterialTheme.typography.headlineMedium.copy(fontSize = 24.sp),
+                modifier = Modifier.padding(12.dp, 8.dp)
+            )
+            GamesHorizontalList(games = trendingGamesState, topLevelNavController = topLevelNavController)
+            Spacer(modifier = Modifier.height(8.dp))
 
-        Text(
-            text = LocalContext.current.getString(R.string.explore_latestHits),
-            style = MaterialTheme.typography.headlineMedium.copy(fontSize = 24.sp),
-            modifier = Modifier.padding(12.dp, 8.dp)
-        )
-        GamesHorizontalList(games = latestBestRatedGamesState, topLevelNavController = topLevelNavController)
-        Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = LocalContext.current.getString(R.string.explore_latestHits),
+                style = MaterialTheme.typography.headlineMedium.copy(fontSize = 24.sp),
+                modifier = Modifier.padding(12.dp, 8.dp)
+            )
+            GamesHorizontalList(games = latestBestRatedGamesState, topLevelNavController = topLevelNavController)
+            Spacer(modifier = Modifier.height(8.dp))
 
-        Text(
-            text = LocalContext.current.getString(R.string.explore_mostHyped),
-            style = MaterialTheme.typography.headlineMedium.copy(fontSize = 24.sp),
-            modifier = Modifier.padding(12.dp, 8.dp)
-        )
-        GamesHorizontalList(games = mostHypedGamesState, topLevelNavController = topLevelNavController)
+            Text(
+                text = LocalContext.current.getString(R.string.explore_mostHyped),
+                style = MaterialTheme.typography.headlineMedium.copy(fontSize = 24.sp),
+                modifier = Modifier.padding(12.dp, 8.dp)
+            )
+            GamesHorizontalList(games = mostHypedGamesState, topLevelNavController = topLevelNavController)
+        }
     }
 }
-
-//@Composable
-//fun PlatformsExploreContent(viewModel: ExploreViewModel, scrollState: LazyListState) {
-//    val platformsList by remember(viewModel) { viewModel.filteredPlatforms }.collectAsState()
-//
-//    Column (
-//        modifier = Modifier
-//            .fillMaxSize()
-//    ) {
-//        PlatformsGrid(platforms = platformsList, scrollState = scrollState)
-//    }
-//}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -491,9 +483,3 @@ fun GameBigListItem(gameItem: GameItem, topLevelNavController: NavController) {
         )
     }
 }
-
-//@Preview(showBackground = true)
-//@Composable
-//fun ExploreScreenBodyContentPreview() {
-//    ExploreScreenBodyContent(navController = rememberNavController(), viewModel(), 0)
-//}

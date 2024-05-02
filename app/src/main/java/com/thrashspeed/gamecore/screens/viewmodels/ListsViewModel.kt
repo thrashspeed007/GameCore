@@ -33,4 +33,11 @@ class ListsViewModel (private val listsRepository: ListsRepository = DependencyC
             }
         }
     }
+
+    fun deleteGameFromList(game: GameItem, list: ListEntity) {
+        viewModelScope.launch {
+            val updatedList = list.copy(games = list.games.toMutableList().apply { remove(game) })
+            listsRepository.updateList(updatedList)
+        }
+    }
 }

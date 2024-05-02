@@ -21,7 +21,6 @@ class ExploreViewModel : ViewModel() {
     private val gamesAccess = GamesAccess()
 //    private val platformsAccess = PlatformsAccess()
 
-    // State to hold the list of popular games
     private val _filteredGames = MutableStateFlow<List<GameItem>>(emptyList())
     private val _trendingGames = MutableStateFlow<List<GameItem>>(emptyList())
     private val _latestBestRatedGames = MutableStateFlow<List<GameItem>>(emptyList())

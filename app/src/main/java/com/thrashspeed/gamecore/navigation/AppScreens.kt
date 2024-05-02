@@ -11,4 +11,5 @@ sealed class AppScreens(val route: String) {
     object ListsScreen: AppScreens("lists_screen")
     object AddGameToListScreen: AppScreens("add_game_to_list_screen")
     object ListContentScreen: AppScreens("list_content_screen")
+    object SettingsScreen: AppScreens("settings_screen")
 }

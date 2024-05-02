@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -27,17 +28,23 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material.icons.filled.Verified
 import androidx.compose.material.icons.filled.VideogameAsset
+import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,6 +52,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -56,6 +64,7 @@ import com.thrashspeed.gamecore.navigation.AppScreens
 import com.thrashspeed.gamecore.screens.viewmodels.GamesTrackerViewModel
 import com.thrashspeed.gamecore.utils.igdb.IgdbHelperMethods
 import com.thrashspeed.gamecore.utils.igdb.IgdbImageSizes
+import kotlinx.coroutines.launch
 
 @Composable
 fun GamesTrackerScreen(topLevelNavController: NavController, navController: NavController, viewModel: GamesTrackerViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
@@ -72,9 +81,19 @@ fun GamesTrackerScreen(topLevelNavController: NavController, navController: NavC
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GameEntityItem(game: GameEntity, topLevelNavController: NavController, viewModel: GamesTrackerViewModel) {
     var expanded by remember { mutableStateOf(false) }
+    var showSheet by remember { mutableStateOf(false) }
+
+    if (showSheet) {
+        ChangeGameStatusBottomSheet(
+            game = game,
+            viewModel = viewModel,
+            onDismissBottomSheet = { showSheet = false }
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -142,7 +161,7 @@ fun GameEntityItem(game: GameEntity, topLevelNavController: NavController, viewM
                             Icon(imageVector = Icons.Default.SwapHoriz, contentDescription = "Change status")
                         },
                         onClick = {
-
+                            showSheet = true
                             expanded = false
                         }
                     )
@@ -164,7 +183,58 @@ fun GameEntityItem(game: GameEntity, topLevelNavController: NavController, viewM
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun  ChangeGameStatusBottomSheet(
+    game: GameEntity,
+    viewModel: GamesTrackerViewModel,
+    onDismissBottomSheet: () -> Unit
+) {
+    val modalBottomSheetState = rememberModalBottomSheetState()
+    val coroutineScope = rememberCoroutineScope()
+    val tagOptions = listOf(GameStatus.TO_PLAY, GameStatus.NOW_PLAYING, GameStatus.COMPLETED)
+    var selectedStatus by remember { mutableStateOf(game.status) }
+    val context = LocalContext.current
 
+    ModalBottomSheet(
+        onDismissRequest = { onDismissBottomSheet() },
+        sheetState = modalBottomSheetState,
+        dragHandle = { BottomSheetDefaults.DragHandle() },
+    ) {
+        Column (
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.navigationBarsPadding(),
+        ) {
+            ToggleButtonGroup(
+                options = tagOptions,
+                selectedOption = game.status,
+                onOptionSelected = {
+                    selectedStatus = it
+                }
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(
+                onClick = {
+                    // TODO
+                    // AÑADIR A FIRESTORE
+                    viewModel.changeGameStatus(game = game, selectedStatus)
+                    coroutineScope.launch {
+                        modalBottomSheetState.hide()
+                        onDismissBottomSheet()
+                    }
+                }
+            ) {
+                Row (
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(imageVector = Icons.Default.SwapHoriz, contentDescription = "Swap button")
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(text = "CHANGE STATE")
+                }
+            }
+        }
+    }
+}
 
 @Composable
 fun GamesHorizontalList(

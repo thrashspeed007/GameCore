@@ -14,7 +14,7 @@ data class GameEntity(
     val name: String,
     val releaseDate: Long,
     val coverImageUrl: String,
-    val status: GameStatus,
+    var status: GameStatus,
     val sessionStartedTempDate: Long = 0,
     val sessionEndedTempDate: Long = 0,
     val hoursPlayed: Double = 0.0,
