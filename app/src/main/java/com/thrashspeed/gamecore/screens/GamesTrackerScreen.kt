@@ -21,27 +21,39 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.NextPlan
+import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Castle
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Gamepad
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.PlayCircle
+import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.filled.SwapHoriz
+import androidx.compose.material.icons.filled.Timelapse
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.filled.Verified
 import androidx.compose.material.icons.filled.VideogameAsset
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
+import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.asLongState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -53,6 +65,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -62,8 +75,10 @@ import com.thrashspeed.gamecore.data.model.GameEntity
 import com.thrashspeed.gamecore.data.model.GameStatus
 import com.thrashspeed.gamecore.navigation.AppScreens
 import com.thrashspeed.gamecore.screens.viewmodels.GamesTrackerViewModel
+import com.thrashspeed.gamecore.utils.composables.DeleteDialog
 import com.thrashspeed.gamecore.utils.igdb.IgdbHelperMethods
 import com.thrashspeed.gamecore.utils.igdb.IgdbImageSizes
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -75,17 +90,143 @@ fun GamesTrackerScreen(topLevelNavController: NavController, navController: NavC
     Column (
         modifier = Modifier.verticalScroll(rememberScrollState())
     ) {
+        GameSession(viewModel = viewModel)
+        Divider(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp), thickness = 2.dp)
         GamesHorizontalList(title = "To Play", icon = Icons.AutoMirrored.Filled.NextPlan, iconColor = MaterialTheme.colorScheme.secondary, games = toPlayGames.value, topLevelNavController = topLevelNavController, viewModel = viewModel)
         GamesHorizontalList(title = "Playing", icon = Icons.Default.VideogameAsset, iconColor = MaterialTheme.colorScheme.primary, games = playingGames.value, topLevelNavController = topLevelNavController, viewModel = viewModel)
         GamesHorizontalList(title = "Completed", icon = Icons.Default.Verified, iconColor = MaterialTheme.colorScheme.tertiary, games = completedGames.value, topLevelNavController = topLevelNavController, viewModel = viewModel)
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun GameSession(viewModel: GamesTrackerViewModel) {
+    val context = LocalContext.current
+    viewModel.checkGameSession(context)
+
+    val gameInSessionId by viewModel.gameInSessionId.asLongState()
+    val game by viewModel.getGameById(gameInSessionId).observeAsState()
+    val sessionActive by viewModel.isSessionActive
+    var currentSessionTime by remember { mutableLongStateOf(0L) }
+
+    LaunchedEffect(game) {
+        currentSessionTime = viewModel.getSessionActiveTime(game?.sessionStartedTempDate ?: 0)
+    }
+
+    Column (
+        modifier = Modifier.padding(bottom = 16.dp)
+    ) {
+        Row (
+            modifier = Modifier.padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(imageVector = Icons.Default.Gamepad, contentDescription = "Game session icon", tint = MaterialTheme.colorScheme.error)
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "Game session",
+                fontSize = 24.sp
+            )
+        }
+        
+        if (gameInSessionId == -1L) {
+            Text(text = "No game in session! To add one, choose 'Create session' on a playing game options.", color = Color.Gray, textAlign = TextAlign.Center, modifier = Modifier
+                .padding(horizontal = 16.dp, vertical = 16.dp)
+                .fillMaxWidth())
+        } else {
+            Column (
+            ) {
+                Text(text = game?.name ?: "", fontSize = 18.sp, modifier = Modifier.padding(horizontal = 8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
+                Row (
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column (
+                        modifier = Modifier.height(190.dp),
+                        verticalArrangement = Arrangement.SpaceAround
+                    ) {
+                        Column {
+                            Text(text = "Total time:")
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Row {
+                                Icon(imageVector = Icons.Default.AccessTime, contentDescription = "Total time icon")
+                                Spacer(modifier = Modifier.width(2.dp))
+                                Text(text = viewModel.formatDuration(game?.timePlayed ?: 0L))
+                            }
+                        }
+                        Column {
+                            Text(text = "Last time:")
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Row {
+                                Icon(imageVector = Icons.Default.Timelapse, contentDescription = "Last session time icon")
+                                Spacer(modifier = Modifier.width(2.dp))
+                                Text(text = viewModel.formatDuration(game?.lastSessionTimePlayed ?: 0L, true))
+                            }
+                        }
+                    }
+
+                    AsyncImage(
+                        model = if (game?.coverImageUrl != null) IgdbHelperMethods.getImageUrl(game?.coverImageUrl ?: "", IgdbImageSizes.SIZE_720P) else "",
+                        contentDescription = game?.name + " cover image",
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(4.dp))
+                            .height(190.dp)
+                    )
+
+                    Column (
+                        modifier = Modifier.height(190.dp),
+                        verticalArrangement = Arrangement.SpaceBetween,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Column {
+                            Text(text = "Current time:")
+
+                            if (sessionActive) {
+                                LaunchedEffect(Unit) {
+                                    while (true) {
+                                        currentSessionTime += 1000
+                                        delay(1000)
+                                    }
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(2.dp))
+
+                            Row {
+                                Icon(imageVector = Icons.Default.Timer, contentDescription = "Current time icon")
+                                Spacer(modifier = Modifier.width(2.dp))
+                                Text(text = viewModel.formatDuration(currentSessionTime, true))
+                            }
+                        }
+                        if (sessionActive) {
+                            IconButton(
+                                onClick = {
+                                    viewModel.endSession(context, game!!, currentSessionTime)
+                                    currentSessionTime = 0L
+                                },
+                                modifier = Modifier.size(64.dp),
+                                colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.error)
+                            ) {
+                                Icon(imageVector = Icons.Default.Stop, contentDescription = "Stop game session button", modifier = Modifier.size(36.dp))
+                            }
+                        } else {
+                            IconButton(onClick = { viewModel.startSession(context, game!!) }, modifier = Modifier.size(64.dp), colors = IconButtonDefaults.filledIconButtonColors(containerColor = Color(0xFF4CAF50), contentColor = Color.White)) {
+                                Icon(imageVector = Icons.Default.PlayArrow, contentDescription = "Play game session button", modifier = Modifier.size(36.dp))
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 @Composable
 fun GameEntityItem(game: GameEntity, topLevelNavController: NavController, viewModel: GamesTrackerViewModel) {
     var expanded by remember { mutableStateOf(false) }
     var showSheet by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     if (showSheet) {
         ChangeGameStatusBottomSheet(
@@ -93,6 +234,15 @@ fun GameEntityItem(game: GameEntity, topLevelNavController: NavController, viewM
             viewModel = viewModel,
             onDismissBottomSheet = { showSheet = false }
         )
+    }
+
+    if (showDeleteDialog) {
+        DeleteDialog(dialogTitleText = "Delete game", dialogContentText = "Are you sure you want to delete the game?") { confirmed ->
+            showDeleteDialog = false
+            if (confirmed) {
+                viewModel.deleteGame(context, game)
+            }
+        }
     }
 
     Column(
@@ -141,6 +291,21 @@ fun GameEntityItem(game: GameEntity, topLevelNavController: NavController, viewM
                     onDismissRequest = { expanded = false },
                     modifier = Modifier.align(Alignment.TopEnd)
                 ) {
+                    if (game.status == GameStatus.NOW_PLAYING) {
+                        DropdownMenuItem(
+                            text = {
+                                Text(text = "Create session", color = Color(0xFF4CAF50))
+                            },
+                            leadingIcon = {
+                                Icon(imageVector = Icons.Default.PlayCircle, contentDescription = "Create game session", tint = Color(0xFF4CAF50))
+                            },
+                            onClick = {
+                                viewModel.addGameToSession(context, game.id)
+                                expanded = false
+                            }
+                        )
+                    }
+
                     DropdownMenuItem(
                         text = {
                             Text(text = "Details")
@@ -173,7 +338,7 @@ fun GameEntityItem(game: GameEntity, topLevelNavController: NavController, viewM
                             Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete game", tint = MaterialTheme.colorScheme.error)
                         },
                         onClick = {
-                            viewModel.deleteGame(game)
+                            showDeleteDialog = true
                             expanded = false
                         }
                     )
@@ -194,7 +359,6 @@ fun  ChangeGameStatusBottomSheet(
     val coroutineScope = rememberCoroutineScope()
     val tagOptions = listOf(GameStatus.TO_PLAY, GameStatus.NOW_PLAYING, GameStatus.COMPLETED)
     var selectedStatus by remember { mutableStateOf(game.status) }
-    val context = LocalContext.current
 
     ModalBottomSheet(
         onDismissRequest = { onDismissBottomSheet() },
@@ -247,14 +411,14 @@ fun GamesHorizontalList(
 ) {
     Column {
         Row (
-            modifier = Modifier.padding(start = 8.dp),
+            modifier = Modifier.padding(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(imageVector = icon, contentDescription = "List description icon", modifier = Modifier.size(24.dp), tint = iconColor)
             Spacer(modifier = Modifier.width(4.dp))
             Text(
                 text = title,
-                modifier = Modifier.padding(8.dp),
+                modifier = Modifier.padding(start = 8.dp),
                 fontSize = 24.sp
             )
         }

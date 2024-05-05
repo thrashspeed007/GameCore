@@ -17,6 +17,10 @@ class GamesRepository(private val gameDao: GameDao) {
         return gameDao.getGamesByStatus(status)
     }
 
+    fun getGameById(gameId: Long): LiveData<GameEntity> {
+        return gameDao.getGameById(gameId)
+    }
+
     suspend fun insertGame(game: GameEntity) {
         withContext(Dispatchers.IO) {
             gameDao.insertGame(game)

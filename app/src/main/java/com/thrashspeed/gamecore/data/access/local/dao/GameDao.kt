@@ -17,6 +17,9 @@ interface GameDao {
     @Query("SELECT * FROM games WHERE status = :status")
     fun getGamesByStatus(status: GameStatus): LiveData<List<GameEntity>>
 
+    @Query("SELECT * FROM games WHERE id = :gameId")
+    fun getGameById(gameId: Long): LiveData<GameEntity>
+
     @Insert
     suspend fun insertGame(game: GameEntity)
 
