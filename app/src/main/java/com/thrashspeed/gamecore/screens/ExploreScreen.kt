@@ -26,8 +26,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.HourglassTop
+import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -142,27 +145,45 @@ fun GamesExploreContent(topLevelNavController: NavController, navController: Nav
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
         ) {
-            Text(
-                text = LocalContext.current.getString(R.string.explore_trendingGames),
-                style = MaterialTheme.typography.headlineMedium.copy(fontSize = 24.sp),
+            Row (
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(12.dp, 8.dp)
-            )
+            ) {
+                Icon(imageVector = Icons.Default.WbSunny, contentDescription = "Trending icon")
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = LocalContext.current.getString(R.string.explore_trendingGames),
+                    style = MaterialTheme.typography.headlineMedium.copy(fontSize = 24.sp),
+                )
+            }
             GamesHorizontalList(games = trendingGamesState, topLevelNavController = topLevelNavController)
             Spacer(modifier = Modifier.height(8.dp))
 
-            Text(
-                text = LocalContext.current.getString(R.string.explore_latestHits),
-                style = MaterialTheme.typography.headlineMedium.copy(fontSize = 24.sp),
+            Row (
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(12.dp, 8.dp)
-            )
+            ) {
+                Icon(imageVector = Icons.AutoMirrored.Filled.TrendingUp, contentDescription = "Latest hits icon", tint = MaterialTheme.colorScheme.primary)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = LocalContext.current.getString(R.string.explore_latestHits),
+                    style = MaterialTheme.typography.headlineMedium.copy(fontSize = 24.sp),
+                )
+            }
             GamesHorizontalList(games = latestBestRatedGamesState, topLevelNavController = topLevelNavController)
             Spacer(modifier = Modifier.height(8.dp))
 
-            Text(
-                text = LocalContext.current.getString(R.string.explore_mostHyped),
-                style = MaterialTheme.typography.headlineMedium.copy(fontSize = 24.sp),
+            Row (
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(12.dp, 8.dp)
-            )
+            ) {
+                Icon(imageVector = Icons.Default.HourglassTop, contentDescription = "Hyped icon", tint = MaterialTheme.colorScheme.tertiary)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = LocalContext.current.getString(R.string.explore_mostHyped),
+                    style = MaterialTheme.typography.headlineMedium.copy(fontSize = 24.sp),
+                )
+            }
             GamesHorizontalList(games = mostHypedGamesState, topLevelNavController = topLevelNavController)
         }
     }

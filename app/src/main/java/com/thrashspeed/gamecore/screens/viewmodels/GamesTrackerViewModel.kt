@@ -55,6 +55,9 @@ class GamesTrackerViewModel (private val gamesRepository: GamesRepository = Depe
     fun startSession(context: Context, game: GameEntity) {
         viewModelScope.launch {
             game.sessionStartedTempDate = System.currentTimeMillis()
+            if (game.firstDayOfPlay == 0L) {
+                game.firstDayOfPlay = game.sessionStartedTempDate
+            }
             gamesRepository.updateGame(game)
 
             val prefs = context.getSharedPreferences(context.getString(R.string.prefs_file), Context.MODE_PRIVATE).edit()

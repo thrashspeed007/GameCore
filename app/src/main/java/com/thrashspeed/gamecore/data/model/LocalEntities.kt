@@ -18,7 +18,7 @@ data class GameEntity(
     var sessionStartedTempDate: Long = 0,
     var lastSessionTimePlayed: Long = 0,
     var timePlayed: Long = 0,
-    val firstDayOfPlay: Long = 0,
+    var firstDayOfPlay: Long = 0,
     val dayOfCompletion: Long = 0
 )
 
