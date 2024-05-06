@@ -80,9 +80,7 @@ fun MyGamesBodyContent(topLevelNavController: NavController, navController: NavC
                 enterTransition = { scaleIn(tween(200, 200)) },
                 exitTransition = { scaleOut(tween(200)) }
             ) {
-                // TODO
-                // PONER PANTALLA DE STATS NO ESTA
-                GamesTrackerScreen(topLevelNavController = topLevelNavController, navController = navController)
+                StatsScreen(topLevelNavController = topLevelNavController, navController = navController)
             }
             composable(
                 route = AppScreens.ListsScreen.route,
@@ -96,6 +94,15 @@ fun MyGamesBodyContent(topLevelNavController: NavController, navController: NavC
         when (selectedTabIndex) {
             0 -> {
                 tabsNavController.navigate(AppScreens.GamesTrackerScreen.route) {
+                    popUpTo(navController.graph.findStartDestination().id) {
+                        saveState = true
+                    }
+                    launchSingleTop = true
+                    restoreState = true
+                }
+            }
+            1 -> {
+                tabsNavController.navigate(AppScreens.StatsScreen.route) {
                     popUpTo(navController.graph.findStartDestination().id) {
                         saveState = true
                     }

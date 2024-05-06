@@ -14,12 +14,13 @@ data class GameEntity(
     val name: String,
     val releaseDate: Long,
     val coverImageUrl: String,
+    val genres: String,
     var status: GameStatus,
     var sessionStartedTempDate: Long = 0,
     var lastSessionTimePlayed: Long = 0,
     var timePlayed: Long = 0,
     var firstDayOfPlay: Long = 0,
-    val dayOfCompletion: Long = 0
+    var dayOfCompletion: Long = 0
 )
 
 @Entity(tableName = "lists")

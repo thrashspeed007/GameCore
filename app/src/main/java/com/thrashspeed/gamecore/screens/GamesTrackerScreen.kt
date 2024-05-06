@@ -69,6 +69,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -467,55 +468,35 @@ fun GamesHorizontalList(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GameDetailsDialog(viewModel: GamesTrackerViewModel, game: GameEntity, onDismiss: () -> Unit) {
-    var firstDayOfPlayDate by remember { mutableLongStateOf(game.firstDayOfPlay) }
-    var dayEndedDate by remember { mutableLongStateOf(game.dayOfCompletion) }
     var hours by remember { mutableLongStateOf(game.timePlayed / (1000 * 60 * 60)) }
     var minutes by remember { mutableLongStateOf(game.timePlayed % (1000 * 60 * 60) / (1000 * 60)) }
-
 
     AlertDialog(
         onDismissRequest = { onDismiss() },
         title = { Text("Game details") },
         text = {
             Column(
-                verticalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Row (
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = "First day of play:", fontSize = 14.sp)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    TextField(
-                        value = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date(firstDayOfPlayDate)),
-                        onValueChange = {
-                            val parsedDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).parse(it)
-                            firstDayOfPlayDate = parsedDate?.time ?: firstDayOfPlayDate
-                        },
-                        modifier = Modifier.weight(1f)
-                    )
+                    Text(text = "First day of play:", fontSize = 16.sp)
+                    Text(text = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date(game.firstDayOfPlay)), modifier = Modifier.weight(1f), textAlign = TextAlign.End, fontSize = 16.sp)
                 }
                 Row (
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = "Day of completion:", fontSize = 14.sp)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    TextField(
-                        value = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date(dayEndedDate)),
-                        onValueChange = {
-                            val parsedDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).parse(it)
-                            dayEndedDate = parsedDate?.time ?: dayEndedDate
-                        },
-                        modifier = Modifier.weight(1f)
-                    )
+                    Text(text = "Day of completion:", fontSize = 16.sp)
+                    Text(text = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date(game.dayOfCompletion)), modifier = Modifier.weight(1f), textAlign = TextAlign.End, fontSize = 16.sp)
                 }
                 Row (
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text(text = "Time played:", fontSize = 14.sp)
+                    Text(text = "Time played:", fontSize = 16.sp)
                     Spacer(modifier = Modifier.width(8.dp))
                     Row (
                         modifier = Modifier.weight(1f),
@@ -528,9 +509,10 @@ fun GameDetailsDialog(viewModel: GamesTrackerViewModel, game: GameEntity, onDism
                                 hours = it.take(3).toLongOrNull() ?: 0L
                             },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            modifier = Modifier.width(60.dp)
+                            modifier = Modifier.width(60.dp),
+                            textStyle = TextStyle(fontSize = 16.sp)
                         )
-                        Text(text = "h")
+                        Text(text = "h", fontSize = 16.sp)
                         TextField(
                             value = minutes.toString(),
                             onValueChange = {
@@ -539,9 +521,10 @@ fun GameDetailsDialog(viewModel: GamesTrackerViewModel, game: GameEntity, onDism
                                 }
                             },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            modifier = Modifier.width(60.dp)
+                            modifier = Modifier.width(60.dp),
+                            textStyle = TextStyle(fontSize = 16.sp)
                         )
-                        Text(text = "m")
+                        Text(text = "m", fontSize = 16.sp)
                     }
                 }
             }
@@ -549,7 +532,10 @@ fun GameDetailsDialog(viewModel: GamesTrackerViewModel, game: GameEntity, onDism
         confirmButton = {
             Button(
                 onClick = {
-
+                    if (game.timePlayed != (hours * 60 * 60 * 1000) + (minutes * 60 * 1000)) {
+                        game.timePlayed = (hours * 60 * 60 * 1000) + (minutes * 60 * 1000)
+                        viewModel.updateGame(game)
+                    }
                     onDismiss()
                 }
             ) {

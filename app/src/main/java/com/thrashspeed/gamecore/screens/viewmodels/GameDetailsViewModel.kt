@@ -36,6 +36,8 @@ class GameDetailsViewModel(gameId: Int) : ViewModel() {
             gameId = game.id,
             name = game.name,
             releaseDate = game.first_release_date,
+            genres = game.genres
+                .filter { it.name.isNotBlank() }.joinToString(",") { it.name },
             coverImageUrl = game.cover.image_id,
             status = status
         )

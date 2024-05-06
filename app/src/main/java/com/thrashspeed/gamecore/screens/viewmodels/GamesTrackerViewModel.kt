@@ -28,6 +28,12 @@ class GamesTrackerViewModel (private val gamesRepository: GamesRepository = Depe
         }
     }
 
+    fun updateGame(game: GameEntity) {
+        viewModelScope.launch {
+            gamesRepository.updateGame(game)
+        }
+    }
+
     fun getGameById(gameId: Long): LiveData<GameEntity> {
         return gamesRepository.getGameById(gameId)
     }
@@ -47,6 +53,9 @@ class GamesTrackerViewModel (private val gamesRepository: GamesRepository = Depe
 
     fun changeGameStatus(game: GameEntity, status: GameStatus) {
         viewModelScope.launch {
+            if (status == GameStatus.COMPLETED) {
+                game.dayOfCompletion = System.currentTimeMillis()
+            }
             game.status = status
             gamesRepository.updateGame(game)
         }
