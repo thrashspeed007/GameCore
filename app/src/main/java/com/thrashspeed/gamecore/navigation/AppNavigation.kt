@@ -7,8 +7,6 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -44,6 +42,7 @@ import com.thrashspeed.gamecore.screens.ExploreScreen
 import com.thrashspeed.gamecore.screens.GameDetailsScreen
 import com.thrashspeed.gamecore.screens.ListContentScreen
 import com.thrashspeed.gamecore.screens.MyGamesScreen
+import com.thrashspeed.gamecore.screens.ProfileScreen
 import com.thrashspeed.gamecore.screens.SearchGamesScreen
 import com.thrashspeed.gamecore.screens.SettingsScreen
 
@@ -183,6 +182,13 @@ fun HomeNavigation(topLevelNavController: NavHostController, navController: NavH
             ) {
                 SearchGamesScreen(topLevelNavController, navController)
             }
+            composable(
+                route = AppScreens.ProfileScreen.route,
+                enterTransition = { scaleIn(tween(200, 200)) },
+                exitTransition = { scaleOut(tween(200)) }
+            ) {
+                ProfileScreen(topLevelNavController = topLevelNavController, navController = navController)
+            }
         }
     }
 }
@@ -194,19 +200,11 @@ fun TopBar(topLevelNavController: NavController, navController: NavController) {
         title = {
             Text(LocalContext.current.getString(R.string.app_name) )
         },
-        navigationIcon = {
-            IconButton(onClick = { /*TODO*/ }) {
-                Icon(imageVector = Icons.Default.Menu, contentDescription = "Menu")
-            }
-        },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             titleContentColor = MaterialTheme.colorScheme.primary,
         ),
         actions = {
-            IconButton(onClick = {  }) {
-                Icon(imageVector = Icons.Default.Notifications, contentDescription = "Notifications")
-            }
             IconButton(onClick = { topLevelNavController.navigate(AppScreens.SettingsScreen.route) }) {
                 Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings")
             }

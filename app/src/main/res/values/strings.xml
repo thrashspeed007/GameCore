@@ -31,10 +31,10 @@
     <string name="gamesTrackerTabs_stats">STATS</string>
 
 <!--    Bottom nav bar -->
-    <string name="bottonNavBar_explore">Explore</string>
-    <string name="bottonNavBar_myGames">My Games</string>
+    <string name="bottomNavBar_explore">Explore</string>
+    <string name="bottomNavBar_myGames">My Games</string>
     <string name="bottomNavBar_search">Search</string>
-    <string name="bottonNavBar_social">Social</string>
-    <string name="bottonNavBar_profile">Profile</string>
+    <string name="bottomNavBar_social">Social</string>
+    <string name="bottomNavBar_profile">Profile</string>
 
 </resources>
