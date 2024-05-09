@@ -1,5 +1,7 @@
 package com.thrashspeed.gamecore.screens.viewmodels
 
+import android.database.SQLException
+import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.thrashspeed.gamecore.DependencyContainer
@@ -7,7 +9,6 @@ import com.thrashspeed.gamecore.data.access.igdb.GamesAccess
 import com.thrashspeed.gamecore.data.access.local.repositories.GamesRepository
 import com.thrashspeed.gamecore.data.model.GameDetailed
 import com.thrashspeed.gamecore.data.model.GameEntity
-import com.thrashspeed.gamecore.data.model.GameStatus
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
@@ -30,20 +31,21 @@ class GameDetailsViewModel(gameId: Int) : ViewModel() {
         }
     }
 
-    fun insertGame(status: GameStatus) {
-        val game: GameDetailed = gameDetails.value.first()
-        val gameEntity = GameEntity (
-            gameId = game.id,
-            name = game.name,
-            releaseDate = game.first_release_date,
-            genres = game.genres
-                .filter { it.name.isNotBlank() }.joinToString(",") { it.name },
-            coverImageUrl = game.cover.image_id,
-            status = status
-        )
-
-        viewModelScope.launch {
+    suspend fun insertGame(gameEntity: GameEntity): Result<Unit> {
+        return try {
             gamesRepository.insertGame(gameEntity)
+            Result.Success(Unit)
+        } catch (e: SQLiteConstraintException) {
+            Result.Error("You already have this game!")
+        } catch (e: SQLException) {
+            Result.Error(e.message.toString())
+        } catch (e: Exception) {
+            Result.Error(e.toString())
         }
     }
+}
+
+sealed class Result<out T> {
+    data class Success<out T>(val data: T) : Result<T>()
+    data class Error(val exception: String) : Result<Nothing>()
 }

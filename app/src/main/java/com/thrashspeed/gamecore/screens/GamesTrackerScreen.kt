@@ -272,7 +272,7 @@ fun GameEntityItem(game: GameEntity, topLevelNavController: NavController, viewM
                 .clip(RoundedCornerShape(4.dp))
                 .height(190.dp)
                 .clickable {
-                    topLevelNavController.navigate("${AppScreens.GameDetailsScreen.route}/${game.gameId}")
+                    topLevelNavController.navigate("${AppScreens.GameDetailsScreen.route}/${game.id}")
                 }
         ) {
             AsyncImage(

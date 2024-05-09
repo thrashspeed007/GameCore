@@ -6,11 +6,12 @@ import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlin.reflect.full.memberProperties
+import kotlin.reflect.jvm.isAccessible
 
 @Entity(tableName = "games")
 data class GameEntity(
-    @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    val gameId: Long,
+    @PrimaryKey val id: Long,
     val name: String,
     val releaseDate: Long,
     val coverImageUrl: String,
@@ -21,7 +22,19 @@ data class GameEntity(
     var timePlayed: Long = 0,
     var firstDayOfPlay: Long = 0,
     var dayOfCompletion: Long = 0
-)
+) {
+    fun toMap(): Map<String, Any?> {
+        val map = mutableMapOf<String, Any?>()
+        val properties = GameEntity::class.memberProperties
+
+        for (prop in properties) {
+            prop.isAccessible = true
+            map[prop.name] = prop.get(this)
+        }
+
+        return map
+    }
+}
 
 @Entity(tableName = "lists")
 @TypeConverters(GameItemConverter::class)
@@ -30,7 +43,31 @@ data class ListEntity(
     val name: String,
     val description: String,
     val games: List<GameItem>
-)
+) {
+    fun toMap(): Map<String, Any?> {
+        val map = mutableMapOf<String, Any?>()
+        val properties = ListEntity::class.memberProperties
+
+        for (prop in properties) {
+            prop.isAccessible = true
+            val value = prop.get(this)
+            if (value is List<*>) {
+                val listMap = value.mapIndexed { index, item ->
+                    if (item is GameItem) {
+                        "game$index" to gameItemToMap(item)
+                    } else {
+                        "game$index" to item
+                    }
+                }.toMap()
+                map[prop.name] = listMap
+            } else {
+                map[prop.name] = value
+            }
+        }
+
+        return map
+    }
+}
 
 enum class GameStatus(val displayName: String) {
     NOW_PLAYING("Playing"),
@@ -50,5 +87,14 @@ class GameItemConverter {
         val listType = object : TypeToken<List<GameItem>>() {}.type
         return Gson().fromJson(data, listType)
     }
+}
+
+private fun gameItemToMap(gameItem: GameItem): Map<String, Any?> {
+    return mapOf(
+        "id" to gameItem.id,
+        "name" to gameItem.name,
+        "cover" to gameItem.cover?.image_id,
+        "firstReleaseDate" to gameItem.first_release_date
+    )
 }
 

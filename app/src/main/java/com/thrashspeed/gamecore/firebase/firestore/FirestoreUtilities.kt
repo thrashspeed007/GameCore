@@ -1,7 +1,10 @@
 package com.thrashspeed.gamecore.firebase.firestore
 
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.thrashspeed.gamecore.data.model.GameEntity
+import com.thrashspeed.gamecore.data.model.ListEntity
 import com.thrashspeed.gamecore.firebase.FirebaseInstances
 
 /**
@@ -58,4 +61,43 @@ object FirestoreUtilities {
                 callback(false)
             }
     }
+
+    fun insertGame(gameEntity: GameEntity, callback: (Boolean) -> Unit) {
+        val userUid = FirebaseInstances.authInstance.uid.toString()
+        val gamesCollectionRef = FirebaseInstances.firestoreInstance
+            .collection("users")
+            .document(userUid)
+            .collection("games")
+
+        val gameMap = gameEntity.toMap()
+
+        gamesCollectionRef.document(gameEntity.id.toString()).set(gameMap)
+            .addOnSuccessListener {
+                callback.invoke(true)
+            }
+            .addOnFailureListener { e ->
+                Log.d("FirestoreUtilities", "Error adding game: ${e.message}")
+                callback.invoke(false)
+            }
+    }
+
+    fun insertList(listEntity: ListEntity, callback: (Boolean) -> Unit) {
+        val userUid = FirebaseInstances.authInstance.uid.toString()
+        val listsCollectionRef = FirebaseInstances.firestoreInstance
+            .collection("users")
+            .document(userUid)
+            .collection("lists")
+
+        val listMap = listEntity.toMap()
+
+        listsCollectionRef.document(listEntity.id.toString()).set(listMap)
+            .addOnSuccessListener {
+                callback.invoke(true)
+            }
+            .addOnFailureListener {  e ->
+                Log.d("FirestoreUtilities", "Error adding list: ${e.message}")
+                callback.invoke(false)
+            }
+    }
+
 }

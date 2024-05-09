@@ -157,7 +157,7 @@ class AuthViewModel: ViewModel() {
             }
     }
 
-    fun saveUserInfo(context: Context, email: String, username: String, fullName: String) {
+    private fun saveUserInfo(context: Context, email: String, username: String, fullName: String) {
         val sharedPreferences: SharedPreferences = context.getSharedPreferences(context.getString(R.string.prefs_file), Context.MODE_PRIVATE)
         val editor: SharedPreferences.Editor = sharedPreferences.edit()
         editor.putString("email", email)

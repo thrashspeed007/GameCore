@@ -57,13 +57,17 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.thrashspeed.gamecore.R
 import com.thrashspeed.gamecore.data.model.GameDetailed
+import com.thrashspeed.gamecore.data.model.GameEntity
 import com.thrashspeed.gamecore.data.model.GameStatus
+import com.thrashspeed.gamecore.firebase.firestore.FirestoreUtilities
 import com.thrashspeed.gamecore.navigation.AppScreens
 import com.thrashspeed.gamecore.screens.viewmodels.GameDetailsViewModel
 import com.thrashspeed.gamecore.screens.viewmodels.GameDetailsViewModelFactory
+import com.thrashspeed.gamecore.screens.viewmodels.Result
 import com.thrashspeed.gamecore.utils.composables.LoadingIndicator
 import com.thrashspeed.gamecore.utils.igdb.IgdbHelperMethods
 import com.thrashspeed.gamecore.utils.igdb.IgdbImageSizes
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -89,6 +93,7 @@ fun GameDetailsScreenBodyContent(topLevelNavController: NavController, gameId: I
 
     if (showSheet) {
         AddToTagBottomSheet(
+            game = game,
             viewModel = viewModel,
             topLevelNavController = topLevelNavController,
             onDismissBottomSheet = { showSheet = false }
@@ -238,6 +243,7 @@ fun GameDetailsContent(game: GameDetailed) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddToTagBottomSheet(
+    game: GameDetailed?,
     viewModel: GameDetailsViewModel,
     topLevelNavController: NavController,
     onDismissBottomSheet: () -> Unit
@@ -267,14 +273,40 @@ fun AddToTagBottomSheet(
             Spacer(modifier = Modifier.height(8.dp))
             Button(
                 onClick = {
-                    // TODO
-                    // AÑADIR A FIRESTORE
-                    viewModel.insertGame(selectedStatus)
+                    val gameEntity = GameEntity (
+                        id = game!!.id,
+                        name = game.name,
+                        releaseDate = game.first_release_date,
+                        genres = game.genres
+                            .filter { it.name.isNotBlank() }.joinToString(",") { it.name },
+                        coverImageUrl = game.cover.image_id,
+                        status = selectedStatus
+                    )
+
                     coroutineScope.launch {
+                        val localInsertionDeferred = async { viewModel.insertGame(gameEntity) }
+
+                        val localInsertionResult = localInsertionDeferred.await()
+
+                        if (localInsertionResult is Result.Error) {
+                            Toast.makeText(context, "Error: ${localInsertionResult.exception}", Toast.LENGTH_SHORT).show()
+                            return@launch
+                        }
+
+                        Toast.makeText(context, "Game added!", Toast.LENGTH_SHORT).show()
                         modalBottomSheetState.hide()
                         onDismissBottomSheet()
+
+                        if (localInsertionResult is Result.Success) {
+                            launch {
+                                FirestoreUtilities.insertGame(gameEntity) { success ->
+                                    if (!success) {
+                                        Toast.makeText(context, "Failed to add the game to the cloud!", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            }
+                        }
                     }
-                    Toast.makeText(context, "Game added!", Toast.LENGTH_SHORT).show()
                 }
             ) {
                 Row (
