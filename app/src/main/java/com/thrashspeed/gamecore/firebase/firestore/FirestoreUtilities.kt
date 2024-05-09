@@ -32,12 +32,21 @@ object FirestoreUtilities {
                 "fullname" to fullname
             )
 
-            firestore.collection("users").document(user.uid)
-                .set(userData)
-                .addOnSuccessListener {
-                    createUsernameEntry(username, user.uid, email) { success ->
-                        // Habría que hacer rollback de lo anterior si result es false
-                        callback(success)
+            val userDocRef = firestore.collection("users").document(user.uid)
+            userDocRef.get()
+                .addOnSuccessListener { documentSnapshot ->
+                    if (documentSnapshot.exists()) {
+                        callback(true)
+                    } else {
+                        userDocRef.set(userData)
+                            .addOnSuccessListener {
+                                createUsernameEntry(username, user.uid, email) { success ->
+                                    callback(success)
+                                }
+                            }
+                            .addOnFailureListener {
+                                callback(false)
+                            }
                     }
                 }
                 .addOnFailureListener {

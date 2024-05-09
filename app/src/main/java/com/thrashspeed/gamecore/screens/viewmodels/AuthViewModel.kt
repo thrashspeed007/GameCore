@@ -148,8 +148,14 @@ class AuthViewModel: ViewModel() {
                 if (task.isSuccessful) {
                     Log.d("GoogleSignIn", "signInWithCredential:success")
                     val user = FirebaseInstances.authInstance.currentUser
-                    saveUserInfo(context, user?.email.toString(), user?.displayName.toString(), user?.displayName.toString())
-                    authCallback.onAuthSuccess()
+                    FirestoreUtilities.saveUserInFirestore(user?.email.toString(), user?.displayName.toString(), user?.displayName.toString()) { success ->
+                        if (success) {
+                            saveUserInfo(context, user?.email.toString(), user?.displayName.toString(), user?.displayName.toString())
+                            authCallback.onAuthSuccess()
+                        } else {
+                            showAlert(context, "Error al guardar el usuario en la base de datos")
+                        }
+                    }
                 } else {
                     Log.w("GoogleSignIn", "signInWithCredential:failure", task.exception)
                     Toast.makeText(context, "error when logging in with google: ${task.exception}", Toast.LENGTH_LONG).show()
