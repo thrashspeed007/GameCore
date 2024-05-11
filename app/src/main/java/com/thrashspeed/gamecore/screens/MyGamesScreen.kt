@@ -73,7 +73,7 @@ fun MyGamesBodyContent(topLevelNavController: NavController, navController: NavC
                 enterTransition = { scaleIn(tween(200, 200)) },
                 exitTransition = { scaleOut(tween(200)) }
             ) {
-                GamesTrackerScreen(topLevelNavController = topLevelNavController, navController = navController)
+                GamesTrackerScreen(topLevelNavController = topLevelNavController)
             }
             composable(
                 route = AppScreens.StatsScreen.route,
@@ -87,7 +87,7 @@ fun MyGamesBodyContent(topLevelNavController: NavController, navController: NavC
                 enterTransition = { scaleIn(tween(200, 200)) },
                 exitTransition = { scaleOut(tween(200)) }
             ) {
-                ListsScreen(topLevelNavController = topLevelNavController, navController = navController)
+                ListsScreen(topLevelNavController = topLevelNavController)
             }
         }
 

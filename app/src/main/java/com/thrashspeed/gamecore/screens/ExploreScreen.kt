@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -124,7 +123,10 @@ fun ExploreScreenBodyContent(topLevelNavController: NavController, navController
         Column (
         ) {
             when (selectedTabIndex) {
-                0 -> GamesExploreContent(topLevelNavController = topLevelNavController, navController = navController, viewModel = viewModel, horizontalListScrollState, verticalListScrollState)
+                0 -> GamesExploreContent(
+                    topLevelNavController = topLevelNavController,
+                    viewModel = viewModel
+                )
                 1 -> GamesCatalogue(topLevelNavController = topLevelNavController, viewModel = viewModel)
             }
         }
@@ -132,7 +134,10 @@ fun ExploreScreenBodyContent(topLevelNavController: NavController, navController
 }
 
 @Composable
-fun GamesExploreContent(topLevelNavController: NavController, navController: NavController, viewModel: ExploreViewModel, horizontalListScrollState: LazyListState, verticalListScrollState: LazyListState) {
+fun GamesExploreContent(
+    topLevelNavController: NavController,
+    viewModel: ExploreViewModel
+) {
     val trendingGamesState by remember(viewModel) { viewModel.trendingGames }.collectAsState()
     val latestBestRatedGamesState by remember(viewModel) { viewModel.latestBestRatedGames }.collectAsState()
     val mostHypedGamesState by remember(viewModel) { viewModel.mostHypedGames }.collectAsState()
@@ -374,7 +379,7 @@ fun GameListItem(index: Int, game: GameItem, onItemClick: (Long) -> Unit) {
             text = "#${index + 1}"
         )
         AsyncImage(
-            model = if (game.cover != null) IgdbHelperMethods.getImageUrl(game.cover.image_id ?: "", IgdbImageSizes.COVER_BIG) else R.drawable.ic_launcher_background,
+            model = if (game.cover != null) IgdbHelperMethods.getImageUrl(game.cover.image_id ?: "", IgdbImageSizes.COVER_BIG) else R.drawable.ic_launcher_foreground,
             contentDescription = game.name + " cover image",
             contentScale = ContentScale.Fit,
             modifier = Modifier

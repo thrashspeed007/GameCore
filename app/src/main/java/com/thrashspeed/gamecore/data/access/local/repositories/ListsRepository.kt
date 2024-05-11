@@ -11,8 +11,12 @@ class ListsRepository(private val listDao: ListDao) {
         return listDao.getAllLists()
     }
 
-    suspend fun insertList(list: ListEntity) {
-        withContext(Dispatchers.IO) {
+    suspend fun insertList(list: ListEntity): Long {
+        return listDao.insertList(list)
+    }
+
+    suspend fun importLists(lists: List<ListEntity>) {
+        for (list in lists) {
             listDao.insertList(list)
         }
     }

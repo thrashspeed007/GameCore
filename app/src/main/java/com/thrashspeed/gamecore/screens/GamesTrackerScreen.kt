@@ -1,5 +1,6 @@
 package com.thrashspeed.gamecore.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -75,11 +76,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.thrashspeed.gamecore.R
 import com.thrashspeed.gamecore.data.model.GameEntity
 import com.thrashspeed.gamecore.data.model.GameStatus
+import com.thrashspeed.gamecore.firebase.firestore.FirestoreRepository
 import com.thrashspeed.gamecore.navigation.AppScreens
 import com.thrashspeed.gamecore.screens.viewmodels.GamesTrackerViewModel
 import com.thrashspeed.gamecore.utils.composables.DeleteDialog
@@ -92,7 +95,10 @@ import java.util.Date
 import java.util.Locale
 
 @Composable
-fun GamesTrackerScreen(topLevelNavController: NavController, navController: NavController, viewModel: GamesTrackerViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
+fun GamesTrackerScreen(
+    topLevelNavController: NavController,
+    viewModel: GamesTrackerViewModel = viewModel()
+) {
     val toPlayGames = viewModel.getGamesByStatus(GameStatus.TO_PLAY).observeAsState(initial = emptyList())
     val completedGames = viewModel.getGamesByStatus(GameStatus.COMPLETED).observeAsState(initial = emptyList())
     val playingGames = viewModel.getGamesByStatus(GameStatus.NOW_PLAYING).observeAsState(initial = emptyList())
@@ -372,6 +378,7 @@ fun  ChangeGameStatusBottomSheet(
     viewModel: GamesTrackerViewModel,
     onDismissBottomSheet: () -> Unit
 ) {
+    val context = LocalContext.current
     val modalBottomSheetState = rememberModalBottomSheetState()
     val coroutineScope = rememberCoroutineScope()
     val tagOptions = listOf(GameStatus.TO_PLAY, GameStatus.NOW_PLAYING, GameStatus.COMPLETED)
@@ -396,9 +403,7 @@ fun  ChangeGameStatusBottomSheet(
             Spacer(modifier = Modifier.height(8.dp))
             Button(
                 onClick = {
-                    // TODO
-                    // AÑADIR A FIRESTORE
-                    viewModel.changeGameStatus(game = game, selectedStatus)
+                    viewModel.changeGameStatus(context = context, game = game, status = selectedStatus)
                     coroutineScope.launch {
                         modalBottomSheetState.hide()
                         onDismissBottomSheet()
@@ -470,6 +475,7 @@ fun GamesHorizontalList(
 
 @Composable
 fun GameDetailsDialog(viewModel: GamesTrackerViewModel, game: GameEntity, onDismiss: () -> Unit) {
+    val context = LocalContext.current
     var hours by remember { mutableLongStateOf(game.timePlayed / (1000 * 60 * 60)) }
     var minutes by remember { mutableLongStateOf(game.timePlayed % (1000 * 60 * 60) / (1000 * 60)) }
 
@@ -535,6 +541,11 @@ fun GameDetailsDialog(viewModel: GamesTrackerViewModel, game: GameEntity, onDism
                     if (game.timePlayed != (hours * 60 * 60 * 1000) + (minutes * 60 * 1000)) {
                         game.timePlayed = (hours * 60 * 60 * 1000) + (minutes * 60 * 1000)
                         viewModel.updateGame(game)
+                        FirestoreRepository.updateGame(game.id, hashMapOf("timePlayed" to game.timePlayed.toString())) { success ->
+                            if (!success) {
+                                Toast.makeText(context, "Failed to update the game in the cloud!", Toast.LENGTH_SHORT).show()
+                            }
+                        }
                     }
                     onDismiss()
                 }

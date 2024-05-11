@@ -42,6 +42,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.thrashspeed.gamecore.R
 import com.thrashspeed.gamecore.data.model.ListEntity
@@ -50,7 +51,7 @@ import com.thrashspeed.gamecore.screens.viewmodels.ListsViewModel
 import com.thrashspeed.gamecore.utils.composables.DeleteDialog
 
 @Composable
-fun ListsScreen(topLevelNavController: NavController, navController: NavController, viewModel: ListsViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
+fun ListsScreen(topLevelNavController: NavController, viewModel: ListsViewModel = viewModel()) {
     ListsBodyContent(viewModel = viewModel, topLevelNavController = topLevelNavController)
 }
 

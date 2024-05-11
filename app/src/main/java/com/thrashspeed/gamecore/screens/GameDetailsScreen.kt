@@ -59,7 +59,7 @@ import com.thrashspeed.gamecore.R
 import com.thrashspeed.gamecore.data.model.GameDetailed
 import com.thrashspeed.gamecore.data.model.GameEntity
 import com.thrashspeed.gamecore.data.model.GameStatus
-import com.thrashspeed.gamecore.firebase.firestore.FirestoreUtilities
+import com.thrashspeed.gamecore.firebase.firestore.FirestoreRepository
 import com.thrashspeed.gamecore.navigation.AppScreens
 import com.thrashspeed.gamecore.screens.viewmodels.GameDetailsViewModel
 import com.thrashspeed.gamecore.screens.viewmodels.GameDetailsViewModelFactory
@@ -80,12 +80,15 @@ fun GameDetailsScreen(navController: NavController, gameId: Int) {
         factory = GameDetailsViewModelFactory(gameId)
     )
 
-    GameDetailsScreenBodyContent(topLevelNavController = navController, gameId = gameId, viewModel = viewModel)
+    GameDetailsScreenBodyContent(topLevelNavController = navController, viewModel = viewModel)
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun GameDetailsScreenBodyContent(topLevelNavController: NavController, gameId: Int, viewModel: GameDetailsViewModel) {
+fun GameDetailsScreenBodyContent(
+    topLevelNavController: NavController,
+    viewModel: GameDetailsViewModel
+) {
     val gameDetailsState by viewModel.gameDetails.collectAsState()
 
     val game = gameDetailsState.firstOrNull()
@@ -299,7 +302,7 @@ fun AddToTagBottomSheet(
 
                         if (localInsertionResult is Result.Success) {
                             launch {
-                                FirestoreUtilities.insertGame(gameEntity) { success ->
+                                FirestoreRepository.insertGame(gameEntity) { success ->
                                     if (!success) {
                                         Toast.makeText(context, "Failed to add the game to the cloud!", Toast.LENGTH_SHORT).show()
                                     }

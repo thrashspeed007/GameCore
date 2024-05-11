@@ -8,18 +8,24 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.GoogleAuthProvider
+import com.thrashspeed.gamecore.DependencyContainer
 import com.thrashspeed.gamecore.R
 import com.thrashspeed.gamecore.config.FirebaseConectionData
 import com.thrashspeed.gamecore.firebase.FirebaseInstances
-import com.thrashspeed.gamecore.firebase.firestore.FirestoreUtilities
+import com.thrashspeed.gamecore.firebase.firestore.FirestoreRepository
 import com.thrashspeed.gamecore.screens.AuthCallback
+import kotlinx.coroutines.launch
 
 class AuthViewModel: ViewModel() {
+    val gamesRepository = DependencyContainer.gamesRepository
+    val listsRepository = DependencyContainer.listsRepository
+
     fun signInWithGoogle(context: Context, googleSignInLauncher: ActivityResultLauncher<Intent>) {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(FirebaseConectionData.GOOGLE_WEB_CLIENT_ID)
@@ -61,12 +67,12 @@ class AuthViewModel: ViewModel() {
                         password
                     ).addOnCompleteListener { task ->
                         if (task.isSuccessful) {
-                            FirestoreUtilities.saveUserInFirestore(email, username, fullname) { success ->
+                            FirestoreRepository.saveUserInFirestore(email, username, fullname) { success ->
                                 if (success) {
                                     saveUserInfo(context, email, username, fullname)
                                     authCallback.onAuthSuccess()
                                 } else {
-                                    showAlert(context, "Error al guardar el usuario en la base de datos")
+                                    showAlert(context, "Error al registrarse, inténtalo de nuevo")
                                 }
                             }
                         } else {
@@ -105,7 +111,11 @@ class AuthViewModel: ViewModel() {
                                         .addOnSuccessListener { document ->
                                             if (document.exists()) {
                                                 saveUserInfo(context, userEmail, username, document.getString("fullname").toString())
-                                                authCallback.onAuthSuccess()
+                                                viewModelScope.launch {
+                                                    gamesRepository.importGames(FirestoreRepository.getGamesAsList())
+                                                    listsRepository.importLists(FirestoreRepository.getListsAsList())
+                                                    authCallback.onAuthSuccess()
+                                                }
                                             }
                                         }
                                 } else {
@@ -148,12 +158,16 @@ class AuthViewModel: ViewModel() {
                 if (task.isSuccessful) {
                     Log.d("GoogleSignIn", "signInWithCredential:success")
                     val user = FirebaseInstances.authInstance.currentUser
-                    FirestoreUtilities.saveUserInFirestore(user?.email.toString(), user?.displayName.toString(), user?.displayName.toString()) { success ->
+                    FirestoreRepository.saveUserInFirestore(user?.email.toString(), user?.displayName.toString(), user?.displayName.toString()) { success ->
                         if (success) {
                             saveUserInfo(context, user?.email.toString(), user?.displayName.toString(), user?.displayName.toString())
-                            authCallback.onAuthSuccess()
+                            viewModelScope.launch {
+                                gamesRepository.importGames(FirestoreRepository.getGamesAsList())
+                                listsRepository.importLists(FirestoreRepository.getListsAsList())
+                                authCallback.onAuthSuccess()
+                            }
                         } else {
-                            showAlert(context, "Error al guardar el usuario en la base de datos")
+                            showAlert(context, "Error al iniciar sesión, inténtalo de nuevo")
                         }
                     }
                 } else {

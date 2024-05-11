@@ -152,7 +152,7 @@ fun AppNavigation(darkThemeCallback: (Boolean) -> Unit) {
 @Composable
 fun HomeNavigation(topLevelNavController: NavHostController, navController: NavHostController) {
     Scaffold (
-        topBar = { TopBar(topLevelNavController, navController)},
+        topBar = { TopBar(topLevelNavController)},
         bottomBar = { BottomBar(navController) }
     ) { paddingValues ->
         NavHost (
@@ -195,7 +195,7 @@ fun HomeNavigation(topLevelNavController: NavHostController, navController: NavH
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar(topLevelNavController: NavController, navController: NavController) {
+fun TopBar(topLevelNavController: NavController) {
     TopAppBar(
         title = {
             Text(LocalContext.current.getString(R.string.app_name) )

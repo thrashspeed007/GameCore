@@ -27,6 +27,12 @@ class GamesRepository(private val gameDao: GameDao) {
         }
     }
 
+    suspend fun importGames(games: List<GameEntity>) {
+        for (game in games) {
+            gameDao.insertGame(game)
+        }
+    }
+
     suspend fun deleteGame(game: GameEntity) {
         withContext(Dispatchers.IO) {
             gameDao.deleteGame(game)

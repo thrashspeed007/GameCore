@@ -51,15 +51,14 @@ data class ListEntity(
         for (prop in properties) {
             prop.isAccessible = true
             val value = prop.get(this)
-            if (value is List<*>) {
-                val listMap = value.mapIndexed { index, item ->
+            if (prop.name == "games" && value is List<*>) {
+                val games = mutableListOf<Map<String, Any?>>()
+                value.forEach { item ->
                     if (item is GameItem) {
-                        "game$index" to gameItemToMap(item)
-                    } else {
-                        "game$index" to item
+                        games.add(gameItemToMap(item))
                     }
-                }.toMap()
-                map[prop.name] = listMap
+                }
+                map[prop.name] = games
             } else {
                 map[prop.name] = value
             }
@@ -67,6 +66,7 @@ data class ListEntity(
 
         return map
     }
+
 }
 
 enum class GameStatus(val displayName: String) {
@@ -93,8 +93,8 @@ private fun gameItemToMap(gameItem: GameItem): Map<String, Any?> {
     return mapOf(
         "id" to gameItem.id,
         "name" to gameItem.name,
-        "cover" to gameItem.cover?.image_id,
-        "firstReleaseDate" to gameItem.first_release_date
+        "cover" to gameItem.cover,
+        "first_release_date" to gameItem.first_release_date
     )
 }
 

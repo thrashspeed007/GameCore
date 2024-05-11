@@ -12,6 +12,7 @@ import com.thrashspeed.gamecore.R
 import com.thrashspeed.gamecore.data.access.local.repositories.GamesRepository
 import com.thrashspeed.gamecore.data.model.GameEntity
 import com.thrashspeed.gamecore.data.model.GameStatus
+import com.thrashspeed.gamecore.firebase.firestore.FirestoreRepository
 import kotlinx.coroutines.launch
 
 class GamesTrackerViewModel (private val gamesRepository: GamesRepository = DependencyContainer.gamesRepository) : ViewModel() {
@@ -20,12 +21,6 @@ class GamesTrackerViewModel (private val gamesRepository: GamesRepository = Depe
 
     fun getGamesByStatus(status: GameStatus): LiveData<List<GameEntity>> {
         return gamesRepository.getGamesByStatus(status)
-    }
-
-    fun insertGame(game: GameEntity) {
-        viewModelScope.launch {
-            gamesRepository.insertGame(game)
-        }
     }
 
     fun updateGame(game: GameEntity) {
@@ -48,45 +43,80 @@ class GamesTrackerViewModel (private val gamesRepository: GamesRepository = Depe
 
         viewModelScope.launch {
             gamesRepository.deleteGame(game)
+            FirestoreRepository.deleteGame(game) { success ->
+                if (!success) {
+                    Toast.makeText(context, "Failed to delete the game in the cloud!", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 
-    fun changeGameStatus(game: GameEntity, status: GameStatus) {
+    fun changeGameStatus(context: Context, game: GameEntity, status: GameStatus) {
         viewModelScope.launch {
+            val fieldsToUpdate = hashMapOf<String, String>()
+
             if (status == GameStatus.COMPLETED) {
                 game.dayOfCompletion = System.currentTimeMillis()
+                fieldsToUpdate["dayOfCompletion"] = game.dayOfCompletion.toString()
             }
             game.status = status
+            fieldsToUpdate["status"] = status.displayName
+
             gamesRepository.updateGame(game)
+            FirestoreRepository.updateGame(game.id, fieldsToUpdate) { success ->
+                if (!success) {
+                    Toast.makeText(context, "Failed to update the game in the cloud!", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 
     fun startSession(context: Context, game: GameEntity) {
         viewModelScope.launch {
-            game.sessionStartedTempDate = System.currentTimeMillis()
-            if (game.firstDayOfPlay == 0L) {
-                game.firstDayOfPlay = game.sessionStartedTempDate
-            }
-            gamesRepository.updateGame(game)
+            val fieldsToUpdate = hashMapOf<String, String>()
 
             val prefs = context.getSharedPreferences(context.getString(R.string.prefs_file), Context.MODE_PRIVATE).edit()
             prefs.putBoolean("isSessionActive", true)
             prefs.apply()
             isSessionActive.value = true
+
+            game.sessionStartedTempDate = System.currentTimeMillis()
+            fieldsToUpdate["sessionStartedTempDate"] = game.sessionStartedTempDate.toString()
+            if (game.firstDayOfPlay == 0L) {
+                game.firstDayOfPlay = game.sessionStartedTempDate
+                fieldsToUpdate["firstDayOfPlay"] = game.firstDayOfPlay.toString()
+            }
+            gamesRepository.updateGame(game)
+            FirestoreRepository.updateGame(game.id, fieldsToUpdate) { success ->
+                if (!success) {
+                    Toast.makeText(context, "Failed to update the game in the cloud!", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 
     fun endSession(context: Context, game: GameEntity, currentTime: Long) {
         viewModelScope.launch {
-            isSessionActive.value = false
-            game.lastSessionTimePlayed = currentTime
-            game.timePlayed += game.lastSessionTimePlayed
-            game.sessionStartedTempDate = 0L
-            gamesRepository.updateGame(game)
+            val fieldsToUpdate = hashMapOf<String, String>()
 
             val prefs = context.getSharedPreferences(context.getString(R.string.prefs_file), Context.MODE_PRIVATE).edit()
             prefs.putBoolean("isSessionActive", false)
             prefs.apply()
+            isSessionActive.value = false
+
+            game.lastSessionTimePlayed = currentTime
+            fieldsToUpdate["lastSessionTimePlayed"] = game.lastSessionTimePlayed.toString()
+            game.timePlayed += game.lastSessionTimePlayed
+            fieldsToUpdate["timePlayed"] = game.timePlayed.toString()
+            game.sessionStartedTempDate = 0L
+            fieldsToUpdate["sessionStartedTempDate"] = "0"
+            gamesRepository.updateGame(game)
+            FirestoreRepository.updateGame(game.id, fieldsToUpdate) { success ->
+                if (!success) {
+                    Toast.makeText(context, "Failed to update the game in the cloud!", Toast.LENGTH_SHORT).show()
+                }
+            }
+
         }
     }
 

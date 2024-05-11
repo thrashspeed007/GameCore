@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.thrashspeed.gamecore.data.model.ListEntity
@@ -13,8 +14,8 @@ interface ListDao {
     @Query("SELECT * FROM lists")
     fun getAllLists(): LiveData<List<ListEntity>>
 
-    @Insert
-    suspend fun insertList(list: ListEntity)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertList(list: ListEntity): Long
 
     @Update
     suspend fun updateList(list: ListEntity)
