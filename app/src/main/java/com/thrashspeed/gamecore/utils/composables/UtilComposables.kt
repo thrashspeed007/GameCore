@@ -55,3 +55,29 @@ fun DeleteDialog(dialogTitleText: String, dialogContentText: String, onDismiss: 
         properties = DialogProperties(dismissOnClickOutside = true),
     )
 }
+
+@Composable
+fun AcceptDenyDialog(dialogTitleText: String, dialogContentText: String, onDismiss: (confirmed: Boolean) -> Unit) {
+    AlertDialog(
+        onDismissRequest = { onDismiss(false) },
+        title = { Text(dialogTitleText) },
+        text = { Text(dialogContentText) },
+        confirmButton = {
+            Button(
+                onClick = { onDismiss(true) },
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+            ) {
+                Text("Accept")
+            }
+        },
+        dismissButton = {
+            Button(
+                onClick = { onDismiss(false) },
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onBackground)
+            ) {
+                Text("Cancel")
+            }
+        },
+        properties = DialogProperties(dismissOnClickOutside = true),
+    )
+}

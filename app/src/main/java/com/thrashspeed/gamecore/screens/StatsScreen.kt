@@ -111,36 +111,33 @@ fun StatsScreenBodyContent(topLevelNavController: NavController, navController: 
                 Text(text = "Stats", fontSize = 20.sp)
             }
 
-            Column {
+            Column (
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
                 Row (
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Column (
-                        verticalArrangement = Arrangement.spacedBy(24.dp)
-                    ) {
-                        Text(text = "Most played games:")
-                        Text(text = "Most played genres:")
+                    Text(text = "Most played games:")
+                    Column {
+                        allGames?.sortedByDescending { it.timePlayed }?.take(5)?.forEachIndexed { index, gameEntity ->
+                            Text(text = "${index + 1}. ${gameEntity.name}")
+                        }
                     }
-                    Column (
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(24.dp)
-                    ) {
-                        Column {
-                            allGames?.sortedByDescending { it.timePlayed }?.take(5)?.forEachIndexed { index, gameEntity ->
-                                Text(text = "${index + 1}. ${gameEntity.name}")
+                }
+                Row (
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Text(text = "Most played genres:")
+                    Column {
+                        allGames?.flatMap { it.genres.split(",") }
+                            ?.groupingBy { it }
+                            ?.eachCount()
+                            ?.entries
+                            ?.sortedByDescending { it.value }
+                            ?.take(5)
+                            ?.forEachIndexed { index, entry ->
+                                Text(text = "${index + 1}. ${entry.key.trim()}")
                             }
-                        }
-                        Column {
-                            allGames?.flatMap { it.genres.split(",") }
-                                ?.groupingBy { it }
-                                ?.eachCount()
-                                ?.entries
-                                ?.sortedByDescending { it.value }
-                                ?.take(5)
-                                ?.forEachIndexed { index, entry ->
-                                    Text(text = "${index + 1}. ${entry.key.trim()}")
-                                }
-                        }
                     }
                 }
             }

@@ -38,6 +38,7 @@ import com.thrashspeed.gamecore.R
 import com.thrashspeed.gamecore.data.model.GameCover
 import com.thrashspeed.gamecore.data.model.GameItem
 import com.thrashspeed.gamecore.screens.AddGameToListScreen
+import com.thrashspeed.gamecore.screens.AuthScreen
 import com.thrashspeed.gamecore.screens.ExploreScreen
 import com.thrashspeed.gamecore.screens.GameDetailsScreen
 import com.thrashspeed.gamecore.screens.ListContentScreen
@@ -64,6 +65,19 @@ fun AppNavigation(darkThemeCallback: (Boolean) -> Unit) {
             navController = topLevelNavController,
             startDestination = AppScreens.HomeNavigation.route
         ) {
+            composable(
+                route = AppScreens.AuthScreen.route,
+                enterTransition = { slideInHorizontally(
+                    initialOffsetX = { it },
+                    animationSpec = tween(300)
+                ) },
+                exitTransition = { slideOutHorizontally(
+                    targetOffsetX = { it },
+                    animationSpec = tween(300)
+                ) }
+            ) {
+                AuthScreen(authCallback = {topLevelNavController.popBackStack()})
+            }
             composable(
                 route = AppScreens.HomeNavigation.route,
                 enterTransition = { scaleIn(tween(200, 200)) },

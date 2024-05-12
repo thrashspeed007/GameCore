@@ -1,6 +1,7 @@
 package com.thrashspeed.gamecore.navigation
 
 sealed class AppScreens(val route: String) {
+    object AuthScreen: AppScreens("auth_screen")
     object HomeNavigation: AppScreens("home_screen")
     object ExploreScreen: AppScreens("explore_games_screen")
     object MyGamesScreen: AppScreens("my_games_screen")

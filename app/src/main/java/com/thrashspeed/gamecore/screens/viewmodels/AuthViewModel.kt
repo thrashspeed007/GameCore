@@ -19,7 +19,6 @@ import com.thrashspeed.gamecore.R
 import com.thrashspeed.gamecore.config.FirebaseConectionData
 import com.thrashspeed.gamecore.firebase.FirebaseInstances
 import com.thrashspeed.gamecore.firebase.firestore.FirestoreRepository
-import com.thrashspeed.gamecore.screens.AuthCallback
 import kotlinx.coroutines.launch
 
 class AuthViewModel: ViewModel() {
@@ -39,7 +38,7 @@ class AuthViewModel: ViewModel() {
         googleSignInLauncher.launch(signInIntent)
     }
 
-    fun signUp(context: Context, authCallback: AuthCallback, email: String, password: String, passwordConfirmation: String, username: String, fullname: String) {
+    fun signUp(context: Context, authCallback: () -> Unit, email: String, password: String, passwordConfirmation: String, username: String, fullname: String) {
         if (email.isEmpty() || password.isEmpty() || username.isEmpty()) {
             showAlert(context,"Rellena todos los campos porfavor.")
             return
@@ -70,7 +69,7 @@ class AuthViewModel: ViewModel() {
                             FirestoreRepository.saveUserInFirestore(email, username, fullname) { success ->
                                 if (success) {
                                     saveUserInfo(context, email, username, fullname)
-                                    authCallback.onAuthSuccess()
+                                    authCallback.invoke()
                                 } else {
                                     showAlert(context, "Error al registrarse, inténtalo de nuevo")
                                 }
@@ -87,7 +86,7 @@ class AuthViewModel: ViewModel() {
             }
     }
 
-    fun loginUser(context: Context, authCallback: AuthCallback, username: String, password: String) {
+    fun loginUser(context: Context, authCallback: () -> Unit, username: String, password: String) {
         if (username.isEmpty() || password.isEmpty()) {
             return
         }
@@ -114,7 +113,7 @@ class AuthViewModel: ViewModel() {
                                                 viewModelScope.launch {
                                                     gamesRepository.importGames(FirestoreRepository.getGamesAsList())
                                                     listsRepository.importLists(FirestoreRepository.getListsAsList())
-                                                    authCallback.onAuthSuccess()
+                                                    authCallback.invoke()
                                                 }
                                             }
                                         }
@@ -151,7 +150,7 @@ class AuthViewModel: ViewModel() {
         dialog.show()
     }
 
-    fun firebaseAuthWithGoogle(context: Context, idToken: String, authCallback: AuthCallback) {
+    fun firebaseAuthWithGoogle(context: Context, idToken: String, authCallback: () -> Unit) {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         FirebaseInstances.authInstance.signInWithCredential(credential)
             .addOnCompleteListener { task ->
@@ -164,7 +163,7 @@ class AuthViewModel: ViewModel() {
                             viewModelScope.launch {
                                 gamesRepository.importGames(FirestoreRepository.getGamesAsList())
                                 listsRepository.importLists(FirestoreRepository.getListsAsList())
-                                authCallback.onAuthSuccess()
+                                authCallback.invoke()
                             }
                         } else {
                             showAlert(context, "Error al iniciar sesión, inténtalo de nuevo")

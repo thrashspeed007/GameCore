@@ -5,13 +5,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import com.thrashspeed.gamecore.navigation.AppNavigation
-import com.thrashspeed.gamecore.screens.AuthCallback
 import com.thrashspeed.gamecore.screens.AuthScreen
 import com.thrashspeed.gamecore.ui.theme.GameCoreTheme
 
-class MainActivity : ComponentActivity(), AuthCallback {
+class MainActivity : ComponentActivity() {
 
-    private val darkThemeCallback: (Boolean) -> Unit = { window.decorView.setBackgroundColor(if (it) 0xFF1C1B1F.toInt() else 0xFFFFFBFE.toInt()) }
+    private val darkThemeCallback: (Boolean) -> Unit =
+        { window.decorView.setBackgroundColor(if (it) 0xFF1C1B1F.toInt() else 0xFFFFFBFE.toInt()) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,13 +22,13 @@ class MainActivity : ComponentActivity(), AuthCallback {
                 if (session()) {
                     AppNavigation(darkThemeCallback)
                 } else {
-                    AuthScreen(this)
+                    AuthScreen(::onAuthSuccess)
                 }
             }
         }
     }
 
-    override fun onAuthSuccess() {
+    private fun onAuthSuccess() {
         setContent {
             GameCoreTheme {
                 AppNavigation(darkThemeCallback)

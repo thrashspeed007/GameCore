@@ -46,7 +46,6 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -56,12 +55,8 @@ import com.thrashspeed.gamecore.R
 import com.thrashspeed.gamecore.screens.viewmodels.AuthViewModel
 import com.thrashspeed.gamecore.utils.Fonts
 
-interface AuthCallback {
-    fun onAuthSuccess()
-}
-
 @Composable
-fun AuthScreen(authCallback: AuthCallback, viewModel: AuthViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
+fun AuthScreen(authCallback: () -> Unit, viewModel: AuthViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
     val colorPrimary = MaterialTheme.colorScheme.primary
     val colorSecondayContainer = MaterialTheme.colorScheme.secondaryContainer
     val colorOnPrimary = MaterialTheme.colorScheme.onPrimary
@@ -369,7 +364,7 @@ fun PasswordTextField(
 }
 
 @Composable
-fun ActionButton(context: Context, viewModel: AuthViewModel, modifier: Modifier = Modifier, containerColor: Color, contentColor: Color, isRegistering: Boolean, authCallback: AuthCallback, email: String, password: String, passwordConfirmation: String, username: String, fullName: String) {
+fun ActionButton(context: Context, viewModel: AuthViewModel, modifier: Modifier = Modifier, containerColor: Color, contentColor: Color, isRegistering: Boolean, authCallback: () -> Unit, email: String, password: String, passwordConfirmation: String, username: String, fullName: String) {
     Button(
         onClick = {
             if (isRegistering) {
@@ -423,7 +418,7 @@ fun ChangeActionModeButton(onAction: () -> Unit, isRegistering: Boolean, modifie
 }
 
 @Composable
-fun GoogleLogInButton(modifier: Modifier = Modifier, authCallback: AuthCallback, viewModel: AuthViewModel) {
+fun GoogleLogInButton(modifier: Modifier = Modifier, authCallback: () -> Unit, viewModel: AuthViewModel) {
     val context = LocalContext.current
     val googleSignInLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
@@ -467,14 +462,4 @@ fun GoogleLogInButton(modifier: Modifier = Modifier, authCallback: AuthCallback,
             )
         }
     }
-}
-
-@Preview()
-@Composable
-fun AuthScreenPreview() {
-    AuthScreen(object : AuthCallback {
-        override fun onAuthSuccess() {
-            // This is a fake implementation of the auth callback for the preview that does nothing
-        }
-    })
 }
