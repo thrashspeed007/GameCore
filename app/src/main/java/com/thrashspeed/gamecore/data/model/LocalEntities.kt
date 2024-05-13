@@ -31,11 +31,8 @@ data class GameEntity(
             prop.isAccessible = true
             val value = prop.get(this)
 
-            // Check if the property is an enum
             if (value is GameStatus) {
-                // Map the display name of the enum value
-                val displayName = (value.name)
-                map[prop.name] = displayName
+                map[prop.name] = value.name
             } else {
                 map[prop.name] = value
             }

@@ -541,7 +541,7 @@ fun GameDetailsDialog(viewModel: GamesTrackerViewModel, game: GameEntity, onDism
                     if (game.timePlayed != (hours * 60 * 60 * 1000) + (minutes * 60 * 1000)) {
                         game.timePlayed = (hours * 60 * 60 * 1000) + (minutes * 60 * 1000)
                         viewModel.updateGame(game)
-                        FirestoreRepository.updateGame(game.id, hashMapOf("timePlayed" to game.timePlayed.toString())) { success ->
+                        FirestoreRepository.updateGame(game.id, hashMapOf("timePlayed" to game.timePlayed)) { success ->
                             if (!success) {
                                 Toast.makeText(context, "Failed to update the game in the cloud!", Toast.LENGTH_SHORT).show()
                             }

@@ -49,7 +49,7 @@ class AuthViewModel: ViewModel() {
             return
         }
 
-        if (password.length > 6) {
+        if (password.length < 6) {
             showAlert(context, "La contraseña debe tener al menos 6 caracteres")
             return
         }
@@ -183,5 +183,14 @@ class AuthViewModel: ViewModel() {
         editor.putString("username", username)
         editor.putString("fullname", fullName)
         editor.apply()
+    }
+
+    fun resetPassword(email: String, callback: (Boolean) -> Unit) {
+        val auth = FirebaseInstances.authInstance
+
+        auth.sendPasswordResetEmail(email)
+            .addOnCompleteListener { task ->
+                callback.invoke(task.isSuccessful)
+            }
     }
 }

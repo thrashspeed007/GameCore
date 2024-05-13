@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -18,8 +19,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Castle
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -51,7 +54,8 @@ import com.thrashspeed.gamecore.screens.viewmodels.ListsViewModel
 import com.thrashspeed.gamecore.utils.composables.DeleteDialog
 
 @Composable
-fun ListsScreen(topLevelNavController: NavController, viewModel: ListsViewModel = viewModel()) {
+fun ListsScreen(topLevelNavController: NavController,
+                viewModel: ListsViewModel = viewModel()) {
     ListsBodyContent(viewModel = viewModel, topLevelNavController = topLevelNavController)
 }
 
@@ -59,15 +63,15 @@ fun ListsScreen(topLevelNavController: NavController, viewModel: ListsViewModel 
 @Composable
 fun ListsBodyContent(viewModel: ListsViewModel, topLevelNavController: NavController) {
     val lists = viewModel.allLists.observeAsState(initial = emptyList()).value
-    var showDialog by remember { mutableStateOf(false) }
-
-    if (showDialog) {
-        CreateListDialog(viewModel = viewModel, onDismiss = { showDialog = false })
+    var showCreateListDialog by remember { mutableStateOf(false) }
+    
+    if (showCreateListDialog) {
+        CreateListDialog(viewModel = viewModel, onDismiss = { showCreateListDialog = false })
     }
 
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(onClick = { showDialog = true }) {
+            FloatingActionButton(onClick = { showCreateListDialog = true }) {
                 Row(modifier = Modifier.padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
                     Text("CREATE")
                     Spacer(modifier = Modifier.width(8.dp))
@@ -118,6 +122,7 @@ fun ListsBodyContent(viewModel: ListsViewModel, topLevelNavController: NavContro
 @Composable
 fun ListItem(list: ListEntity, viewModel: ListsViewModel, topLevelNavController: NavController, addMode: Boolean = false, addCallback: ((Long, Boolean) -> Unit)? = null) {
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var showEditListDialog by remember { mutableStateOf(false) }
     var checked by remember { mutableStateOf(false) }
 
     Row (
@@ -142,6 +147,10 @@ fun ListItem(list: ListEntity, viewModel: ListsViewModel, topLevelNavController:
                     viewModel.deleteList(list)
                 }
             }
+        }
+        
+        if (showEditListDialog) {
+            EditListDialog(list = list, viewModel = viewModel, onDismiss = { showEditListDialog = false })
         }
 
 //        if (list.games.isNotEmpty()) {
@@ -175,8 +184,12 @@ fun ListItem(list: ListEntity, viewModel: ListsViewModel, topLevelNavController:
                 }
             )
         } else {
+            IconButton(onClick = { showEditListDialog = true }) {
+                Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit list icon", modifier = Modifier.size(28.dp))
+            }
+            Spacer(modifier = Modifier.width(4.dp))
             IconButton(onClick = { showDeleteDialog = true }) {
-                Icon(imageVector = Icons.Default.Clear, contentDescription = "Delete list icon", tint = MaterialTheme.colorScheme.error)
+                Icon(imageVector = Icons.Default.Clear, contentDescription = "Delete list icon", tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(28.dp))
             }
         }
     }
@@ -224,6 +237,63 @@ fun CreateListDialog(viewModel: ListsViewModel, onDismiss: () -> Unit) {
                 }
             ) {
                 Text(text = "OK")
+            }
+        },
+        properties = DialogProperties(dismissOnClickOutside = true),
+    )
+}
+
+@Composable
+fun EditListDialog(list: ListEntity, viewModel: ListsViewModel, onDismiss: () -> Unit) {
+    var newListName by remember { mutableStateOf(list.name) }
+    var newListDescription by remember { mutableStateOf(list.description) }
+
+    AlertDialog(
+        onDismissRequest = { onDismiss() },
+        title = { Text("Edit list") },
+        text = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("List name:")
+                TextField(
+                    value = newListName,
+                    onValueChange = { newListName = it },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Text("List description:")
+                TextField(
+                    value = newListDescription,
+                    onValueChange = { newListDescription = it },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    viewModel.updateListInfo(
+                        ListEntity(
+                            id = list.id,
+                            name = newListName,
+                            description = newListDescription,
+                            games = list.games
+                        )
+                    )
+
+                    onDismiss()
+                }
+            ) {
+                Text(text = "OK")
+            }
+        },
+        dismissButton = {
+            Button(
+                onClick = { onDismiss() },
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Black, contentColor = Color.White)
+            ) {
+                Text(text = "Cancel")
             }
         },
         properties = DialogProperties(dismissOnClickOutside = true),

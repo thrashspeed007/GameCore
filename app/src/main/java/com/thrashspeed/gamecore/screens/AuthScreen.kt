@@ -1,8 +1,8 @@
 package com.thrashspeed.gamecore.screens
 
 import android.app.Activity
-import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -22,13 +22,16 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Login
 import androidx.compose.material.icons.filled.PersonAdd
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,6 +44,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -161,13 +165,11 @@ fun AuthScreen(authCallback: () -> Unit, viewModel: AuthViewModel = androidx.lif
                 }
 
                 ActionButton(
-                    context = LocalContext.current,
                     viewModel = viewModel,
                     containerColor = textFieldsBoxColor,
                     contentColor = boxButtonContentColor,
                     isRegistering = isRegistering,
                     authCallback = authCallback,
-                    email = emailInput,
                     password = passwordInput,
                     passwordConfirmation = passwordConfirmationInput,
                     username = usernameInput,
@@ -363,26 +365,89 @@ fun PasswordTextField(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ActionButton(context: Context, viewModel: AuthViewModel, modifier: Modifier = Modifier, containerColor: Color, contentColor: Color, isRegistering: Boolean, authCallback: () -> Unit, email: String, password: String, passwordConfirmation: String, username: String, fullName: String) {
-    Button(
-        onClick = {
-            if (isRegistering) {
-                viewModel.signUp(context, authCallback, email, password, passwordConfirmation, username, fullName)
-            } else {
-                viewModel.loginUser(context, authCallback, username, password)
+fun ActionButton(
+    viewModel: AuthViewModel,
+    modifier: Modifier = Modifier,
+    containerColor: Color,
+    contentColor: Color,
+    isRegistering: Boolean,
+    authCallback: () -> Unit,
+    password: String,
+    passwordConfirmation: String,
+    username: String,
+    fullName: String
+) {
+    var showResetPassDialog by remember { mutableStateOf(false) }
+    var email by remember { mutableStateOf("") }
+    val context = LocalContext.current
+
+    if (showResetPassDialog) {
+        AlertDialog(
+            onDismissRequest = { showResetPassDialog = false },
+            title = { Text("Reset password") },
+            text = {
+                Column {
+                    OutlinedTextField(value = email, onValueChange = {email = it}, label = { Text(text = "Email")}, keyboardOptions = KeyboardOptions(KeyboardCapitalization.None, false, KeyboardType.Email, ImeAction.Next),)
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        viewModel.resetPassword(email) {
+                            Toast.makeText(context, "Email sent, check you inbox", Toast.LENGTH_LONG).show()
+                            showResetPassDialog = false
+                        }
+                    }
+                ) {
+                    Text(text = "Send email")
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = { showResetPassDialog = false },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black, contentColor = Color.White)
+                ) {
+                    Text(text = "Cancel")
+                }
             }
-        },
-        colors = ButtonDefaults.buttonColors(
-            containerColor = containerColor,
-            contentColor = contentColor
-        ),
-        border = BorderStroke(2.dp, MaterialTheme.colorScheme.onSecondaryContainer),
-        modifier = modifier
-    ) {
-        Text(
-            text = if (isRegistering) LocalContext.current.getString(R.string.signUpBtnText) else LocalContext.current.getString(R.string.logInBtnText)
         )
+    }
+
+    Column (
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Button(
+            onClick = {
+                if (isRegistering) {
+                    viewModel.signUp(context, authCallback, email, password, passwordConfirmation, username, fullName)
+                } else {
+                    viewModel.loginUser(context, authCallback, username, password)
+                }
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = containerColor,
+                contentColor = contentColor
+            ),
+            border = BorderStroke(2.dp, MaterialTheme.colorScheme.onSecondaryContainer),
+            modifier = modifier
+        ) {
+            Text(
+                text = if (isRegistering) LocalContext.current.getString(R.string.signUpBtnText) else LocalContext.current.getString(R.string.logInBtnText)
+            )
+        }
+        if (!isRegistering) {
+            Row (
+                horizontalArrangement = Arrangement.End
+            ) {
+                TextButton(onClick = {
+                    showResetPassDialog = true
+                }) {
+                    Text(text = "Forgot password", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp, textAlign = TextAlign.End)
+                }
+            }
+        }
     }
 }
 

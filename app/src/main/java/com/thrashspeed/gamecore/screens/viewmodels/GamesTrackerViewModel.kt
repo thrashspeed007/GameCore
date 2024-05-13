@@ -53,14 +53,14 @@ class GamesTrackerViewModel (private val gamesRepository: GamesRepository = Depe
 
     fun changeGameStatus(context: Context, game: GameEntity, status: GameStatus) {
         viewModelScope.launch {
-            val fieldsToUpdate = hashMapOf<String, String>()
+            val fieldsToUpdate = hashMapOf<String, Any>()
 
             if (status == GameStatus.COMPLETED) {
                 game.dayOfCompletion = System.currentTimeMillis()
-                fieldsToUpdate["dayOfCompletion"] = game.dayOfCompletion.toString()
+                fieldsToUpdate["dayOfCompletion"] = game.dayOfCompletion
             }
             game.status = status
-            fieldsToUpdate["status"] = status.displayName
+            fieldsToUpdate["status"] = status.name
 
             gamesRepository.updateGame(game)
             FirestoreRepository.updateGame(game.id, fieldsToUpdate) { success ->
@@ -73,7 +73,7 @@ class GamesTrackerViewModel (private val gamesRepository: GamesRepository = Depe
 
     fun startSession(context: Context, game: GameEntity) {
         viewModelScope.launch {
-            val fieldsToUpdate = hashMapOf<String, String>()
+            val fieldsToUpdate = hashMapOf<String, Any>()
 
             val prefs = context.getSharedPreferences(context.getString(R.string.prefs_file), Context.MODE_PRIVATE).edit()
             prefs.putBoolean("isSessionActive", true)
@@ -81,10 +81,10 @@ class GamesTrackerViewModel (private val gamesRepository: GamesRepository = Depe
             isSessionActive.value = true
 
             game.sessionStartedTempDate = System.currentTimeMillis()
-            fieldsToUpdate["sessionStartedTempDate"] = game.sessionStartedTempDate.toString()
+            fieldsToUpdate["sessionStartedTempDate"] = game.sessionStartedTempDate
             if (game.firstDayOfPlay == 0L) {
                 game.firstDayOfPlay = game.sessionStartedTempDate
-                fieldsToUpdate["firstDayOfPlay"] = game.firstDayOfPlay.toString()
+                fieldsToUpdate["firstDayOfPlay"] = game.firstDayOfPlay
             }
             gamesRepository.updateGame(game)
             FirestoreRepository.updateGame(game.id, fieldsToUpdate) { success ->
@@ -97,7 +97,7 @@ class GamesTrackerViewModel (private val gamesRepository: GamesRepository = Depe
 
     fun endSession(context: Context, game: GameEntity, currentTime: Long) {
         viewModelScope.launch {
-            val fieldsToUpdate = hashMapOf<String, String>()
+            val fieldsToUpdate = hashMapOf<String, Any>()
 
             val prefs = context.getSharedPreferences(context.getString(R.string.prefs_file), Context.MODE_PRIVATE).edit()
             prefs.putBoolean("isSessionActive", false)
@@ -105,11 +105,11 @@ class GamesTrackerViewModel (private val gamesRepository: GamesRepository = Depe
             isSessionActive.value = false
 
             game.lastSessionTimePlayed = currentTime
-            fieldsToUpdate["lastSessionTimePlayed"] = game.lastSessionTimePlayed.toString()
+            fieldsToUpdate["lastSessionTimePlayed"] = game.lastSessionTimePlayed
             game.timePlayed += game.lastSessionTimePlayed
-            fieldsToUpdate["timePlayed"] = game.timePlayed.toString()
+            fieldsToUpdate["timePlayed"] = game.timePlayed
             game.sessionStartedTempDate = 0L
-            fieldsToUpdate["sessionStartedTempDate"] = "0"
+            fieldsToUpdate["sessionStartedTempDate"] = 0
             gamesRepository.updateGame(game)
             FirestoreRepository.updateGame(game.id, fieldsToUpdate) { success ->
                 if (!success) {

@@ -21,6 +21,17 @@ class ListsViewModel (private val listsRepository: ListsRepository = DependencyC
         }
     }
 
+    fun updateListInfo(list: ListEntity) {
+        viewModelScope.launch {
+            val fieldsToUpdate = hashMapOf<String, Any>()
+            fieldsToUpdate["name"] = list.name
+            fieldsToUpdate["description"] = list.description
+
+            listsRepository.updateList(list)
+            FirestoreRepository.updateList(list.id, fieldsToUpdate)
+        }
+    }
+
     fun deleteList(list: ListEntity) {
         viewModelScope.launch {
             listsRepository.deleteList(list)

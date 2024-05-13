@@ -169,7 +169,7 @@ object FirestoreRepository {
             }
     }
 
-    fun updateGame(gameId: Long, fields: Map<String, String>, callback: (Boolean) -> Unit) {
+    fun updateGame(gameId: Long, fields: Map<String, Any>, callback: (Boolean) -> Unit) {
         getGamesCollection()?.document(gameId.toString())?.update(fields)
             ?.addOnSuccessListener {
                 callback.invoke(true)

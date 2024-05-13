@@ -1,7 +1,5 @@
 package com.thrashspeed.gamecore.utils.composables
 
-import android.content.Context
-import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.AlertDialog
@@ -13,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.window.DialogProperties
 
 @Composable
@@ -26,8 +25,20 @@ fun LoadingIndicator() {
 }
 
 @Composable
-fun ShowToast(context: Context, message: String, length: Int = 0) {
-    Toast.makeText(context, message, length).show()
+fun InfoAlert(dialogTitleText: String, dialogContentText: String, onDismiss: (confirmed: Boolean) -> Unit) {
+    AlertDialog(
+        onDismissRequest = { onDismiss(true) },
+        title = { Text(dialogTitleText) },
+        text = { Text(dialogContentText) },
+        confirmButton = {
+            Button(
+                onClick = { onDismiss(true) },
+            ) {
+                Text("OK")
+            }
+        },
+        properties = DialogProperties(dismissOnClickOutside = true),
+    )
 }
 
 @Composable
@@ -47,7 +58,7 @@ fun DeleteDialog(dialogTitleText: String, dialogContentText: String, onDismiss: 
         dismissButton = {
             Button(
                 onClick = { onDismiss(false) },
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onBackground)
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Black, contentColor = Color.White)
             ) {
                 Text("Cancel")
             }

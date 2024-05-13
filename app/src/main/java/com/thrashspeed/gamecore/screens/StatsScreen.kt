@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.VideogameAsset
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,21 +23,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.thrashspeed.gamecore.data.model.GameCover
+import com.thrashspeed.gamecore.data.model.GameItem
+import com.thrashspeed.gamecore.navigation.AppScreens
 import com.thrashspeed.gamecore.screens.viewmodels.StatsViewModel
 import java.util.Calendar
 
 @Composable
-fun StatsScreen(topLevelNavController: NavController, navController: NavController, viewModel: StatsViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
+fun StatsScreen(topLevelNavController: NavController, viewModel: StatsViewModel = viewModel()) {
     StatsScreenBodyContent(
         topLevelNavController = topLevelNavController,
-        navController = navController,
         viewModel = viewModel
     )
 }
 
 @Composable
-fun StatsScreenBodyContent(topLevelNavController: NavController, navController: NavController, viewModel: StatsViewModel) {
+fun StatsScreenBodyContent(topLevelNavController: NavController, viewModel: StatsViewModel) {
     val allGames = viewModel.allGames.observeAsState().value
 
     if (allGames?.isEmpty() == true) {
@@ -62,9 +67,7 @@ fun StatsScreenBodyContent(topLevelNavController: NavController, navController: 
         }
 
         val totalLastWeekPlaytimeMillis = gamesLastWeek?.sumOf { game ->
-            val startTime = maxOf(startTimestamp, game.firstDayOfPlay)
-            val endTime = minOf(endTimestamp, game.dayOfCompletion)
-            endTime - startTime
+            game.timePlayed
         } ?: 0
 
         val totalLastWeekHours = totalLastWeekPlaytimeMillis / (1000 * 60 * 60)
@@ -103,6 +106,8 @@ fun StatsScreenBodyContent(topLevelNavController: NavController, navController: 
                 }
             }
 
+            Divider()
+
             Row (
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -117,16 +122,6 @@ fun StatsScreenBodyContent(topLevelNavController: NavController, navController: 
                 Row (
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Text(text = "Most played games:")
-                    Column {
-                        allGames?.sortedByDescending { it.timePlayed }?.take(5)?.forEachIndexed { index, gameEntity ->
-                            Text(text = "${index + 1}. ${gameEntity.name}")
-                        }
-                    }
-                }
-                Row (
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
                     Text(text = "Most played genres:")
                     Column {
                         allGames?.flatMap { it.genres.split(",") }
@@ -138,6 +133,43 @@ fun StatsScreenBodyContent(topLevelNavController: NavController, navController: 
                             ?.forEachIndexed { index, entry ->
                                 Text(text = "${index + 1}. ${entry.key.trim()}")
                             }
+                    }
+                }
+            }
+
+            Divider()
+
+            Row (
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(imageVector = Icons.Default.VideogameAsset, contentDescription = "Most played games icon", modifier = Modifier.size(24.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = "10 most played games", fontSize = 20.sp)
+            }
+
+            Column {
+                allGames?.sortedByDescending { it.timePlayed }?.take(10)?.forEachIndexed { index, gameEntity ->
+                    Row (
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row (
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            GameListItem(
+                                index = index,
+                                game = GameItem(gameEntity.id, gameEntity.name, GameCover(-1, gameEntity.coverImageUrl), gameEntity.releaseDate),
+                                onItemClick = {
+                                    topLevelNavController.navigate("${AppScreens.GameDetailsScreen.route}/${gameEntity.id}")
+                                }
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Column (
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(text = "${gameEntity.timePlayed / (1000 * 60 * 60)}")
+                            Text(text = "hours")
+                        }
                     }
                 }
             }
