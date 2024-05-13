@@ -201,7 +201,7 @@ fun HomeNavigation(topLevelNavController: NavHostController, navController: NavH
                 enterTransition = { scaleIn(tween(200, 200)) },
                 exitTransition = { scaleOut(tween(200)) }
             ) {
-                ProfileScreen(topLevelNavController = topLevelNavController, navController = navController)
+                ProfileScreen(topLevelNavController = topLevelNavController)
             }
         }
     }
