@@ -163,7 +163,6 @@ fun ProfileScreenBodyContent(topLevelNavController: NavController) {
     }
 }
 
-// Function to delete all room data
 suspend fun deleteAllRoomData(context: Context) {
     withContext(Dispatchers.IO) {
         val db = GameCoreDatabase.getInstance(context)
@@ -171,7 +170,6 @@ suspend fun deleteAllRoomData(context: Context) {
     }
 }
 
-// Function to reset password for a user with the specified email address
 fun resetPassword(email: String, callback: (Boolean) -> Unit) {
     val auth = FirebaseInstances.authInstance
 

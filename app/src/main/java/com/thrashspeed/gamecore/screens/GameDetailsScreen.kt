@@ -296,7 +296,6 @@ fun AddToTagBottomSheet(
                             return@launch
                         }
 
-                        Toast.makeText(context, "Game added!", Toast.LENGTH_SHORT).show()
                         modalBottomSheetState.hide()
                         onDismissBottomSheet()
 

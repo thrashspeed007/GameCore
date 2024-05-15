@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.BarChart
@@ -26,6 +28,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.thrashspeed.gamecore.data.model.GameCover
+import com.thrashspeed.gamecore.data.model.GameEntity
 import com.thrashspeed.gamecore.data.model.GameItem
 import com.thrashspeed.gamecore.navigation.AppScreens
 import com.thrashspeed.gamecore.screens.viewmodels.StatsViewModel
@@ -147,32 +150,52 @@ fun StatsScreenBodyContent(topLevelNavController: NavController, viewModel: Stat
                 Text(text = "10 most played games", fontSize = 20.sp)
             }
 
-            Column {
-                allGames?.sortedByDescending { it.timePlayed }?.take(10)?.forEachIndexed { index, gameEntity ->
-                    Row (
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row (
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            GameListItem(
-                                index = index,
-                                game = GameItem(gameEntity.id, gameEntity.name, GameCover(-1, gameEntity.coverImageUrl), gameEntity.releaseDate),
-                                onItemClick = {
-                                    topLevelNavController.navigate("${AppScreens.GameDetailsScreen.route}/${gameEntity.id}")
-                                }
-                            )
+            LazyColumn {
+                val sortedGames = allGames?.sortedByDescending { it.timePlayed }?.take(10).orEmpty()
+
+                itemsIndexed(sortedGames) { index, gameEntity ->
+                    GameRowWithHours(
+                        index = index,
+                        gameEntity = gameEntity,
+                        onItemClick = {
+                            topLevelNavController.navigate("${AppScreens.GameDetailsScreen.route}/${gameEntity.id}")
                         }
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Column (
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(text = "${gameEntity.timePlayed / (1000 * 60 * 60)}")
-                            Text(text = "hours")
-                        }
-                    }
+                    )
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun GameRowWithHours(
+    index: Int,
+    gameEntity: GameEntity,
+    onItemClick: (Long) -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Row(
+            modifier = Modifier.weight(1f)
+        ) {
+            GameListItem(
+                index = index,
+                game = GameItem(
+                    id = gameEntity.id,
+                    name = gameEntity.name,
+                    cover = GameCover(-1, gameEntity.coverImageUrl),
+                    first_release_date = gameEntity.releaseDate
+                ),
+                onItemClick = onItemClick
+            )
+        }
+        Spacer(modifier = Modifier.width(8.dp))
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(text = "${gameEntity.timePlayed / (1000 * 60 * 60)}")
+            Text(text = "hours")
         }
     }
 }
