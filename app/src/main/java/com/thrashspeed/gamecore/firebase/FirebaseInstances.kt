@@ -18,11 +18,4 @@ object FirebaseInstances {
     val authInstance: FirebaseAuth by lazy {
         FirebaseAuth.getInstance()
     }
-
-    /**
-     * Instancia de FirebaseStorage para acceder al almacenamiento en la nube de Firebase.
-     */
-    val firebaseStorageInstance: FirebaseStorage by lazy {
-        FirebaseStorage.getInstance()
-    }
 }
