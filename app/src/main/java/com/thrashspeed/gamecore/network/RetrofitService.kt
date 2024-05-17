@@ -13,7 +13,7 @@ import retrofit2.converter.gson.GsonConverterFactory
  */
 object RetrofitService {
 
-    var accessToken: String? = "j72yqhcdwg096mewqsu30vmxxcenk6"
+    var accessToken: String? = "21mzkzasaszxvr8egsnepzpk9u1bo7"
 
     /**
      * Objeto Retrofit para realizar llamadas a la API de IGDB.
